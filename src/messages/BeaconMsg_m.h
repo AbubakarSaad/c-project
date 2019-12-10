@@ -32,7 +32,6 @@
  *     double senderDirection;
  *     string nodesIds;
  *     int hop;
- *     int hopAddress;
  * }
  * </pre>
  */
@@ -43,7 +42,6 @@ class BeaconMsg : public ::BasicSafetyMessage
     double senderDirection;
     ::omnetpp::opp_string nodesIds;
     int hop;
-    int hopAddress;
 
   private:
     void copy(const BeaconMsg& other);
@@ -71,8 +69,6 @@ class BeaconMsg : public ::BasicSafetyMessage
     virtual void setNodesIds(const char * nodesIds);
     virtual int getHop() const;
     virtual void setHop(int hop);
-    virtual int getHopAddress() const;
-    virtual void setHopAddress(int hopAddress);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const BeaconMsg& obj) {obj.parsimPack(b);}

@@ -85,6 +85,7 @@ private:
     protected:
        bool is_flooded;
        simtime_t interval_flood;
+       int currentSubscribedServiceId;
 
        map<int, vector<int>> neighbours;
 

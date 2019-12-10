@@ -72,7 +72,7 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 
     if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
 
-        if(simTime() > 15 && simTime() < 20) {
+        if(simTime() > 15 && simTime() < 20 && !is_flooded) {
 
             int source_id = temp_bsm->getSenderAddress();
             int hop_end_count = temp_bsm->getSerial();
@@ -82,22 +82,22 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
             neighbours[hop_count].push_back(source_id);
             neighbours[hop_count].push_back(hop_end_count);
 
-
-
             // "Kinda" flood networks
+            temp_bsm->setSenderAddress(myId);
+
+            hop_end_count = hop_end_count - 1;
+            temp_bsm->setSerial(hop_end_count);
+
+            hop_count = hop_count + 1;
+            temp_bsm->setHop(hop_count);
+
+            populateWSM(bsm);
+            is_flooded = true;
+            scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
+
+
+
             // Changing the parameters
-
-            if(hop_count > 1){
-               hop_end_count =- 1;
-               hop_count += 1;
-
-
-               temp_bsm->setSenderAddress(myId);
-               temp_bsm->setSerial(hop_end_count);
-               temp_bsm->setHop(hop_count);
-               populateWSM(temp_bsm);
-               sendDown(temp_bsm->dup());
-            }
         }
 
     }
@@ -129,17 +129,13 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
 
 
     EV << "Reward: " <<init_obj->reward << endl;
-    if (BeaconMsg* wsm = dynamic_cast<BeaconMsg*>(msg)) {
+    if (BeaconMsg* bsm = dynamic_cast<BeaconMsg*>(msg)) {
         //send this message on the service channel until the counter is 3 or higher.
         //this code only runs when channel switching is enabled
-        EV << "My Id: " << myId << endl;
-        if(msg->isSelfMessage()) {
-            EV << "It's self message don't schedule it again" << endl;
-        } else {
-            //sendDown(wsm->dup());
-            wsm->setSerial(wsm->getSerial() +1);
-            //scheduleAt(simTime()+1, wsm);
+        if(bsm->isSelfMessage()) {
+            sendDelayedDown(bsm->dup(), 1 + uniform(0.01,0.2));
         }
+
     }
     else {
         BaseWaveApplLayer::handleSelfMsg(msg);
@@ -158,7 +154,7 @@ void MyThesisApp::handlePositionUpdate(cObject* obj) {
     if (simTime() < 50) {
        // if (sentMessage == false) {
         findHost()->getDisplayString().updateWith("r=16,red");
-        sentMessage = true;
+
 
         BeaconMsg* wsm = new BeaconMsg();
 

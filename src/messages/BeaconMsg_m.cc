@@ -183,7 +183,6 @@ BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,k
 {
     this->senderDirection = 0;
     this->hop = 0;
-    this->hopAddress = 0;
 }
 
 BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
@@ -209,7 +208,6 @@ void BeaconMsg::copy(const BeaconMsg& other)
     this->senderDirection = other.senderDirection;
     this->nodesIds = other.nodesIds;
     this->hop = other.hop;
-    this->hopAddress = other.hopAddress;
 }
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
@@ -219,7 +217,6 @@ void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->senderDirection);
     doParsimPacking(b,this->nodesIds);
     doParsimPacking(b,this->hop);
-    doParsimPacking(b,this->hopAddress);
 }
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -229,7 +226,6 @@ void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->senderDirection);
     doParsimUnpacking(b,this->nodesIds);
     doParsimUnpacking(b,this->hop);
-    doParsimUnpacking(b,this->hopAddress);
 }
 
 Coord& BeaconMsg::getMessageOriginPosition()
@@ -270,16 +266,6 @@ int BeaconMsg::getHop() const
 void BeaconMsg::setHop(int hop)
 {
     this->hop = hop;
-}
-
-int BeaconMsg::getHopAddress() const
-{
-    return this->hopAddress;
-}
-
-void BeaconMsg::setHopAddress(int hopAddress)
-{
-    this->hopAddress = hopAddress;
 }
 
 class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
@@ -347,7 +333,7 @@ const char *BeaconMsgDescriptor::getProperty(const char *propertyname) const
 int BeaconMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 5+basedesc->getFieldCount() : 5;
+    return basedesc ? 4+basedesc->getFieldCount() : 4;
 }
 
 unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
@@ -363,9 +349,8 @@ unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
-        FD_ISEDITABLE,
     };
-    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconMsgDescriptor::getFieldName(int field) const
@@ -381,9 +366,8 @@ const char *BeaconMsgDescriptor::getFieldName(int field) const
         "senderDirection",
         "nodesIds",
         "hop",
-        "hopAddress",
     };
-    return (field>=0 && field<5) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<4) ? fieldNames[field] : nullptr;
 }
 
 int BeaconMsgDescriptor::findField(const char *fieldName) const
@@ -394,7 +378,6 @@ int BeaconMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
     if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
     if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hopAddress")==0) return base+4;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -411,9 +394,8 @@ const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
         "double",
         "string",
         "int",
-        "int",
     };
-    return (field>=0 && field<5) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<4) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
@@ -484,7 +466,6 @@ std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, 
         case 1: return double2string(pp->getSenderDirection());
         case 2: return oppstring2string(pp->getNodesIds());
         case 3: return long2string(pp->getHop());
-        case 4: return long2string(pp->getHopAddress());
         default: return "";
     }
 }
@@ -502,7 +483,6 @@ bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, 
         case 1: pp->setSenderDirection(string2double(value)); return true;
         case 2: pp->setNodesIds((value)); return true;
         case 3: pp->setHop(string2long(value)); return true;
-        case 4: pp->setHopAddress(string2long(value)); return true;
         default: return false;
     }
 }
