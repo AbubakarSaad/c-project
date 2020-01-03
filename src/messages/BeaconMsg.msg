@@ -19,15 +19,21 @@
 
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/BasicSafetyMessage_m.h"
+#include "veins/modules/messages/DemoSafetyMessage_m.h"
+#include "veins/base/utils/SimpleAddress.h"
 }}
 
-class BasicSafetyMessage;
-class noncobject Coord;
+namespace veins;
 
-packet BeaconMsg extends BasicSafetyMessage {
+class DemoSafetyMessage;
+class noncobject Coord;
+class LAddress::L2Type extends void;
+
+packet BeaconMsg extends DemoSafetyMessage {
     Coord messageOriginPosition;
     double senderDirection;
     string nodesIds;
+    LAddress::L2Type senderAddress = -1;
+   	int serial = 0;
     int hop;
 }

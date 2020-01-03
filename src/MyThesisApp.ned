@@ -15,9 +15,9 @@
 
 package globcomm.src;
 
-import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
+import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
 
-simple MyThesisApp extends BaseWaveApplLayer
+simple MyThesisApp extends DemoBaseApplLayer
 {
     parameters:
 //        @statistic[messagesTransmitted](record=sum);
@@ -44,6 +44,6 @@ simple MyThesisApp extends BaseWaveApplLayer
         
         double datarate @unit(bps);
         
-   		@class(MyThesisApp);
+   		@class(veins::MyThesisApp);
     
 }

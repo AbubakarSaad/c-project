@@ -15,11 +15,13 @@
 
 #include "RSU11p.h"
 
-Define_Module(RSU11p);
+using namespace veins;
+
+Define_Module(veins::RSU11p);
 
 void RSU11p::initialize(int stage) {
     // Start the flooding after 10s and last for 10s = total of 20s
-    BaseWaveApplLayer::initialize(stage);
+    DemoBaseApplLayer::initialize(stage);
 
     string temp_id = "";
     if(stage == 0) {
@@ -58,27 +60,27 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
            }
        }
     } else {
-        BaseWaveApplLayer::handleSelfMsg(msg);
+        DemoBaseApplLayer::handleSelfMsg(msg);
     }
 
 }
 
-void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
+void RSU11p::onWSA(DemoServiceAdvertisment* wsa) {
     //if this RSU receives a WSA for service 42, it will tune to the chan
     EV << "RSUWSA" << endl;
     if (wsa->getPsid() == 42) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
     }
 }
-void RSU11p::onWSM(WaveShortMessage* wsm) {
+void RSU11p::onWSM(BaseFrame1609_4* wsm) {
     EV << "RSUWSM" << endl;
     //this rsu repeats the received traffic update in 2 seconds plus some random delay
     EV << "My id: " << myId << endl;
-    wsm->setSenderAddress(myId);
+    wsm->setRecipientAddress(myId);
     sendDelayedDown(wsm->dup(), 1 + uniform(0.01,0.2));
 }
 
-void RSU11p::onBSM(BasicSafetyMessage* bsm) {
+void RSU11p::onBSM(DemoSafetyMessage* bsm) {
     EV << "RSUBSM" << endl;
     string temp_ids = "";
     if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {

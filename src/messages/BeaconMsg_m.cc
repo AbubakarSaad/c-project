@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.3 from src/messages/BeaconMsg.msg.
+// Generated file, do not edit! Created by nedtool 5.5 from src/messages/BeaconMsg.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -148,6 +148,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
+namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -179,13 +180,15 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 
 Register_Class(BeaconMsg)
 
-BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
+BeaconMsg::BeaconMsg(const char *name, short kind) : ::veins::DemoSafetyMessage(name,kind)
 {
     this->senderDirection = 0;
+    this->senderAddress = -1;
+    this->serial = 0;
     this->hop = 0;
 }
 
-BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
+BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::veins::DemoSafetyMessage(other)
 {
     copy(other);
 }
@@ -197,7 +200,7 @@ BeaconMsg::~BeaconMsg()
 BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
 {
     if (this==&other) return *this;
-    ::BasicSafetyMessage::operator=(other);
+    ::veins::DemoSafetyMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -207,24 +210,30 @@ void BeaconMsg::copy(const BeaconMsg& other)
     this->messageOriginPosition = other.messageOriginPosition;
     this->senderDirection = other.senderDirection;
     this->nodesIds = other.nodesIds;
+    this->senderAddress = other.senderAddress;
+    this->serial = other.serial;
     this->hop = other.hop;
 }
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::BasicSafetyMessage::parsimPack(b);
+    ::veins::DemoSafetyMessage::parsimPack(b);
     doParsimPacking(b,this->messageOriginPosition);
     doParsimPacking(b,this->senderDirection);
     doParsimPacking(b,this->nodesIds);
+    doParsimPacking(b,this->senderAddress);
+    doParsimPacking(b,this->serial);
     doParsimPacking(b,this->hop);
 }
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::BasicSafetyMessage::parsimUnpack(b);
+    ::veins::DemoSafetyMessage::parsimUnpack(b);
     doParsimUnpacking(b,this->messageOriginPosition);
     doParsimUnpacking(b,this->senderDirection);
     doParsimUnpacking(b,this->nodesIds);
+    doParsimUnpacking(b,this->senderAddress);
+    doParsimUnpacking(b,this->serial);
     doParsimUnpacking(b,this->hop);
 }
 
@@ -256,6 +265,26 @@ const char * BeaconMsg::getNodesIds() const
 void BeaconMsg::setNodesIds(const char * nodesIds)
 {
     this->nodesIds = nodesIds;
+}
+
+LAddress::L2Type& BeaconMsg::getSenderAddress()
+{
+    return this->senderAddress;
+}
+
+void BeaconMsg::setSenderAddress(const LAddress::L2Type& senderAddress)
+{
+    this->senderAddress = senderAddress;
+}
+
+int BeaconMsg::getSerial() const
+{
+    return this->serial;
+}
+
+void BeaconMsg::setSerial(int serial)
+{
+    this->serial = serial;
 }
 
 int BeaconMsg::getHop() const
@@ -298,7 +327,7 @@ class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
 
 Register_ClassDescriptor(BeaconMsgDescriptor)
 
-BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("BeaconMsg", "BasicSafetyMessage")
+BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("veins::BeaconMsg", "veins::DemoSafetyMessage")
 {
     propertynames = nullptr;
 }
@@ -333,7 +362,7 @@ const char *BeaconMsgDescriptor::getProperty(const char *propertyname) const
 int BeaconMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 4+basedesc->getFieldCount() : 4;
+    return basedesc ? 6+basedesc->getFieldCount() : 6;
 }
 
 unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
@@ -348,9 +377,11 @@ unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconMsgDescriptor::getFieldName(int field) const
@@ -365,9 +396,11 @@ const char *BeaconMsgDescriptor::getFieldName(int field) const
         "messageOriginPosition",
         "senderDirection",
         "nodesIds",
+        "senderAddress",
+        "serial",
         "hop",
     };
-    return (field>=0 && field<4) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<6) ? fieldNames[field] : nullptr;
 }
 
 int BeaconMsgDescriptor::findField(const char *fieldName) const
@@ -377,7 +410,9 @@ int BeaconMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginPosition")==0) return base+0;
     if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
     if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "serial")==0) return base+4;
+    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+5;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -393,9 +428,11 @@ const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
         "Coord",
         "double",
         "string",
+        "LAddress::L2Type",
+        "int",
         "int",
     };
-    return (field>=0 && field<4) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
@@ -465,7 +502,9 @@ std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, 
         case 0: {std::stringstream out; out << pp->getMessageOriginPosition(); return out.str();}
         case 1: return double2string(pp->getSenderDirection());
         case 2: return oppstring2string(pp->getNodesIds());
-        case 3: return long2string(pp->getHop());
+        case 3: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
+        case 4: return long2string(pp->getSerial());
+        case 5: return long2string(pp->getHop());
         default: return "";
     }
 }
@@ -482,7 +521,8 @@ bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, 
     switch (field) {
         case 1: pp->setSenderDirection(string2double(value)); return true;
         case 2: pp->setNodesIds((value)); return true;
-        case 3: pp->setHop(string2long(value)); return true;
+        case 4: pp->setSerial(string2long(value)); return true;
+        case 5: pp->setHop(string2long(value)); return true;
         default: return false;
     }
 }
@@ -497,6 +537,7 @@ const char *BeaconMsgDescriptor::getFieldStructName(int field) const
     }
     switch (field) {
         case 0: return omnetpp::opp_typename(typeid(Coord));
+        case 3: return omnetpp::opp_typename(typeid(LAddress::L2Type));
         default: return nullptr;
     };
 }
@@ -512,8 +553,10 @@ void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, i
     BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
     switch (field) {
         case 0: return (void *)(&pp->getMessageOriginPosition()); break;
+        case 3: return (void *)(&pp->getSenderAddress()); break;
         default: return nullptr;
     }
 }
 
+} // namespace veins
 

@@ -1,14 +1,14 @@
 version 2
-run Default-0-20191209-21:16:07-2808
+run Default-0-20200103-15:22:43-79645
 attr configname Default
-attr datetime 20191209-21:16:07
+attr datetime 20200103-15:22:43
 attr experiment Default
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvarsf ""
 attr measurement ""
 attr network globcomm.simulation.Thesis
-attr processid 2808
+attr processid 79645
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -56,184 +56,76 @@ param *.node[*].appl.beaconInterval 1s
 param *.node[*].veinsmobilityType.debug true
 param *.node[*].veinsmobility.x 0
 param *.node[*].veinsmobility.y 0
-param *.node[*].veinsmobility.z 1.895
+param *.node[*].veinsmobility.z 0
 param *.node[*].veinsmobility.accidentCount 0
 param *.node[*].veinsmobility.accidentStart 75s
 param *.node[*].veinsmobility.accidentDuration 50s
 param Thesis.manager.numVehicles 5
 
-scalar Thesis.node[1].appl generatedWSMs 0
-scalar Thesis.node[1].appl receivedWSMs 0
-scalar Thesis.node[1].appl generatedBSMs 1
-scalar Thesis.node[1].appl receivedBSMs 5
-scalar Thesis.node[1].appl generatedWSAs 0
-scalar Thesis.node[1].appl receivedWSAs 0
-scalar Thesis.node[1].nic.phy80211p busyTime 5.360824742268e-006
-scalar Thesis.node[1].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[1].nic.mac1609_4 ReceivedBroadcasts 5
-scalar Thesis.node[1].nic.mac1609_4 SentPackets 1
-scalar Thesis.node[1].nic.mac1609_4 SentAcknowledgements 0
-scalar Thesis.node[1].nic.mac1609_4 SNIRLostPackets 0
-scalar Thesis.node[1].nic.mac1609_4 RXTXLostPackets 0
-scalar Thesis.node[1].nic.mac1609_4 TotalLostPackets 0
-scalar Thesis.node[1].nic.mac1609_4 DroppedPacketsInMac 0
-scalar Thesis.node[1].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[1].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.node[1].nic.mac1609_4 SlotsBackoff 3
-scalar Thesis.node[1].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[1].nic.mac1609_4 totalBusyTime 0.000625
-scalar Thesis.node[1].veinsmobility startTime 3
-scalar Thesis.node[1].veinsmobility totalTime 97
-scalar Thesis.node[1].veinsmobility stopTime 100
-scalar Thesis.node[1].veinsmobility minSpeed 0
-scalar Thesis.node[1].veinsmobility maxSpeed 1.3888390999475
-scalar Thesis.node[1].veinsmobility totalDistance 122.66230812427
-scalar Thesis.node[1].veinsmobility totalCO2Emission 112.04531319081
-scalar Thesis.node[2].appl generatedWSMs 0
-scalar Thesis.node[2].appl receivedWSMs 0
-scalar Thesis.node[2].appl generatedBSMs 1
-scalar Thesis.node[2].appl receivedBSMs 4
-scalar Thesis.node[2].appl generatedWSAs 0
-scalar Thesis.node[2].appl receivedWSAs 0
-scalar Thesis.node[2].nic.phy80211p busyTime 4.2886597938144e-006
-scalar Thesis.node[2].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[2].nic.mac1609_4 ReceivedBroadcasts 4
-scalar Thesis.node[2].nic.mac1609_4 SentPackets 1
-scalar Thesis.node[2].nic.mac1609_4 SentAcknowledgements 0
-scalar Thesis.node[2].nic.mac1609_4 SNIRLostPackets 0
-scalar Thesis.node[2].nic.mac1609_4 RXTXLostPackets 0
-scalar Thesis.node[2].nic.mac1609_4 TotalLostPackets 0
-scalar Thesis.node[2].nic.mac1609_4 DroppedPacketsInMac 0
-scalar Thesis.node[2].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[2].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.node[2].nic.mac1609_4 SlotsBackoff 3
-scalar Thesis.node[2].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[2].nic.mac1609_4 totalBusyTime 0.000521
-scalar Thesis.node[2].veinsmobility startTime 3
-scalar Thesis.node[2].veinsmobility totalTime 97
-scalar Thesis.node[2].veinsmobility stopTime 100
-scalar Thesis.node[2].veinsmobility minSpeed 1.3195837497511
-scalar Thesis.node[2].veinsmobility maxSpeed 1.388562813744
-scalar Thesis.node[2].veinsmobility totalDistance 131.41881011121
-scalar Thesis.node[2].veinsmobility totalCO2Emission 112.8546301576
-scalar Thesis.node[3].appl generatedWSMs 0
-scalar Thesis.node[3].appl receivedWSMs 0
-scalar Thesis.node[3].appl generatedBSMs 1
-scalar Thesis.node[3].appl receivedBSMs 4
-scalar Thesis.node[3].appl generatedWSAs 0
-scalar Thesis.node[3].appl receivedWSAs 0
-scalar Thesis.node[3].nic.phy80211p busyTime 4.2886597938144e-006
-scalar Thesis.node[3].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[3].nic.mac1609_4 ReceivedBroadcasts 4
-scalar Thesis.node[3].nic.mac1609_4 SentPackets 1
-scalar Thesis.node[3].nic.mac1609_4 SentAcknowledgements 0
-scalar Thesis.node[3].nic.mac1609_4 SNIRLostPackets 0
-scalar Thesis.node[3].nic.mac1609_4 RXTXLostPackets 0
-scalar Thesis.node[3].nic.mac1609_4 TotalLostPackets 0
-scalar Thesis.node[3].nic.mac1609_4 DroppedPacketsInMac 0
-scalar Thesis.node[3].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[3].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.node[3].nic.mac1609_4 SlotsBackoff 0
-scalar Thesis.node[3].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[3].nic.mac1609_4 totalBusyTime 0.000521
-scalar Thesis.node[3].veinsmobility startTime 3
-scalar Thesis.node[3].veinsmobility totalTime 97
-scalar Thesis.node[3].veinsmobility stopTime 100
-scalar Thesis.node[3].veinsmobility minSpeed 0
-scalar Thesis.node[3].veinsmobility maxSpeed 18.653438245699
-scalar Thesis.node[3].veinsmobility totalDistance 255.91694519402
-scalar Thesis.node[3].veinsmobility totalCO2Emission 167.27116418732
-scalar Thesis.node[4].appl generatedWSMs 0
-scalar Thesis.node[4].appl receivedWSMs 0
-scalar Thesis.node[4].appl generatedBSMs 1
-scalar Thesis.node[4].appl receivedBSMs 4
-scalar Thesis.node[4].appl generatedWSAs 0
-scalar Thesis.node[4].appl receivedWSAs 0
-scalar Thesis.node[4].nic.phy80211p busyTime 4.2886597938144e-006
-scalar Thesis.node[4].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[4].nic.mac1609_4 ReceivedBroadcasts 4
-scalar Thesis.node[4].nic.mac1609_4 SentPackets 1
-scalar Thesis.node[4].nic.mac1609_4 SentAcknowledgements 0
-scalar Thesis.node[4].nic.mac1609_4 SNIRLostPackets 0
-scalar Thesis.node[4].nic.mac1609_4 RXTXLostPackets 0
-scalar Thesis.node[4].nic.mac1609_4 TotalLostPackets 0
-scalar Thesis.node[4].nic.mac1609_4 DroppedPacketsInMac 0
-scalar Thesis.node[4].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[4].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.node[4].nic.mac1609_4 SlotsBackoff 0
-scalar Thesis.node[4].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[4].nic.mac1609_4 totalBusyTime 0.000521
-scalar Thesis.node[4].veinsmobility startTime 3
-scalar Thesis.node[4].veinsmobility totalTime 97
-scalar Thesis.node[4].veinsmobility stopTime 100
-scalar Thesis.node[4].veinsmobility minSpeed 0
-scalar Thesis.node[4].veinsmobility maxSpeed 22.105813048455
-scalar Thesis.node[4].veinsmobility totalDistance 540.30894971989
-scalar Thesis.node[4].veinsmobility totalCO2Emission 214.65879446277
 scalar Thesis.node[0].appl generatedWSMs 0
 scalar Thesis.node[0].appl receivedWSMs 0
-scalar Thesis.node[0].appl generatedBSMs 1
-scalar Thesis.node[0].appl receivedBSMs 4
+scalar Thesis.node[0].appl generatedBSMs 0
+scalar Thesis.node[0].appl receivedBSMs 0
 scalar Thesis.node[0].appl generatedWSAs 0
 scalar Thesis.node[0].appl receivedWSAs 0
-scalar Thesis.node[0].nic.phy80211p busyTime 4.2020202020202e-006
+scalar Thesis.node[0].nic.phy80211p busyTime 0
 scalar Thesis.node[0].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[0].nic.mac1609_4 ReceivedBroadcasts 4
-scalar Thesis.node[0].nic.mac1609_4 SentPackets 1
+scalar Thesis.node[0].nic.mac1609_4 ReceivedBroadcasts 0
+scalar Thesis.node[0].nic.mac1609_4 SentPackets 0
 scalar Thesis.node[0].nic.mac1609_4 SentAcknowledgements 0
 scalar Thesis.node[0].nic.mac1609_4 SNIRLostPackets 0
 scalar Thesis.node[0].nic.mac1609_4 RXTXLostPackets 0
 scalar Thesis.node[0].nic.mac1609_4 TotalLostPackets 0
 scalar Thesis.node[0].nic.mac1609_4 DroppedPacketsInMac 0
 scalar Thesis.node[0].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[0].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.node[0].nic.mac1609_4 SlotsBackoff 1
+scalar Thesis.node[0].nic.mac1609_4 TimesIntoBackoff 0
+scalar Thesis.node[0].nic.mac1609_4 SlotsBackoff 0
 scalar Thesis.node[0].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[0].nic.mac1609_4 totalBusyTime 0.000521
+scalar Thesis.node[0].nic.mac1609_4 totalBusyTime 0
 scalar Thesis.node[0].veinsmobility startTime 1
 scalar Thesis.node[0].veinsmobility totalTime 99
 scalar Thesis.node[0].veinsmobility stopTime 100
 scalar Thesis.node[0].veinsmobility minSpeed 0
-scalar Thesis.node[0].veinsmobility maxSpeed 19.799925733249
-scalar Thesis.node[0].veinsmobility totalDistance 263.4650569757
-scalar Thesis.node[0].veinsmobility totalCO2Emission 186.11395373601
-scalar Thesis.node[5].appl generatedWSMs 0
-scalar Thesis.node[5].appl receivedWSMs 0
-scalar Thesis.node[5].appl generatedBSMs 0
-scalar Thesis.node[5].appl receivedBSMs 0
-scalar Thesis.node[5].appl generatedWSAs 0
-scalar Thesis.node[5].appl receivedWSAs 0
-scalar Thesis.node[5].nic.phy80211p busyTime 0
-scalar Thesis.node[5].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.node[5].nic.mac1609_4 ReceivedBroadcasts 0
-scalar Thesis.node[5].nic.mac1609_4 SentPackets 0
-scalar Thesis.node[5].nic.mac1609_4 SentAcknowledgements 0
-scalar Thesis.node[5].nic.mac1609_4 SNIRLostPackets 0
-scalar Thesis.node[5].nic.mac1609_4 RXTXLostPackets 0
-scalar Thesis.node[5].nic.mac1609_4 TotalLostPackets 0
-scalar Thesis.node[5].nic.mac1609_4 DroppedPacketsInMac 0
-scalar Thesis.node[5].nic.mac1609_4 TooLittleTime 0
-scalar Thesis.node[5].nic.mac1609_4 TimesIntoBackoff 0
-scalar Thesis.node[5].nic.mac1609_4 SlotsBackoff 0
-scalar Thesis.node[5].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.node[5].nic.mac1609_4 totalBusyTime 0
-scalar Thesis.node[5].veinsmobility startTime 60
-scalar Thesis.node[5].veinsmobility totalTime 40
-scalar Thesis.node[5].veinsmobility stopTime 100
-scalar Thesis.node[5].veinsmobility minSpeed 1.32975854997
-scalar Thesis.node[5].veinsmobility maxSpeed 11.599238678766
-scalar Thesis.node[5].veinsmobility totalDistance 123.43831187143
-scalar Thesis.node[5].veinsmobility totalCO2Emission 63.909568490356
+scalar Thesis.node[0].veinsmobility maxSpeed 21.274967969651
+scalar Thesis.node[0].veinsmobility totalDistance 263.27878970022
+scalar Thesis.node[0].veinsmobility totalCO2Emission 194.28236943037
+scalar Thesis.node[1].appl generatedWSMs 0
+scalar Thesis.node[1].appl receivedWSMs 0
+scalar Thesis.node[1].appl generatedBSMs 0
+scalar Thesis.node[1].appl receivedBSMs 0
+scalar Thesis.node[1].appl generatedWSAs 0
+scalar Thesis.node[1].appl receivedWSAs 0
+scalar Thesis.node[1].nic.phy80211p busyTime 0
+scalar Thesis.node[1].nic.mac1609_4 ReceivedUnicastPackets 0
+scalar Thesis.node[1].nic.mac1609_4 ReceivedBroadcasts 0
+scalar Thesis.node[1].nic.mac1609_4 SentPackets 0
+scalar Thesis.node[1].nic.mac1609_4 SentAcknowledgements 0
+scalar Thesis.node[1].nic.mac1609_4 SNIRLostPackets 0
+scalar Thesis.node[1].nic.mac1609_4 RXTXLostPackets 0
+scalar Thesis.node[1].nic.mac1609_4 TotalLostPackets 0
+scalar Thesis.node[1].nic.mac1609_4 DroppedPacketsInMac 0
+scalar Thesis.node[1].nic.mac1609_4 TooLittleTime 0
+scalar Thesis.node[1].nic.mac1609_4 TimesIntoBackoff 0
+scalar Thesis.node[1].nic.mac1609_4 SlotsBackoff 0
+scalar Thesis.node[1].nic.mac1609_4 NumInternalContention 0
+scalar Thesis.node[1].nic.mac1609_4 totalBusyTime 0
+scalar Thesis.node[1].veinsmobility startTime 60
+scalar Thesis.node[1].veinsmobility totalTime 40
+scalar Thesis.node[1].veinsmobility stopTime 100
+scalar Thesis.node[1].veinsmobility minSpeed 2.8913433438414
+scalar Thesis.node[1].veinsmobility maxSpeed 29.101344760652
+scalar Thesis.node[1].veinsmobility totalDistance 553.37775206078
+scalar Thesis.node[1].veinsmobility totalCO2Emission 227.94312222984
 scalar Thesis.manager roiArea 0
 scalar Thesis.rsu[0].appl generatedWSMs 0
 scalar Thesis.rsu[0].appl receivedWSMs 0
 scalar Thesis.rsu[0].appl generatedBSMs 1
-scalar Thesis.rsu[0].appl receivedBSMs 1
+scalar Thesis.rsu[0].appl receivedBSMs 0
 scalar Thesis.rsu[0].appl generatedWSAs 0
 scalar Thesis.rsu[0].appl receivedWSAs 0
-scalar Thesis.rsu[0].nic.phy80211p busyTime 1.04e-006
+scalar Thesis.rsu[0].nic.phy80211p busyTime 0
 scalar Thesis.rsu[0].nic.mac1609_4 ReceivedUnicastPackets 0
-scalar Thesis.rsu[0].nic.mac1609_4 ReceivedBroadcasts 1
+scalar Thesis.rsu[0].nic.mac1609_4 ReceivedBroadcasts 0
 scalar Thesis.rsu[0].nic.mac1609_4 SentPackets 1
 scalar Thesis.rsu[0].nic.mac1609_4 SentAcknowledgements 0
 scalar Thesis.rsu[0].nic.mac1609_4 SNIRLostPackets 0
@@ -242,7 +134,7 @@ scalar Thesis.rsu[0].nic.mac1609_4 TotalLostPackets 0
 scalar Thesis.rsu[0].nic.mac1609_4 DroppedPacketsInMac 0
 scalar Thesis.rsu[0].nic.mac1609_4 TooLittleTime 0
 scalar Thesis.rsu[0].nic.mac1609_4 TimesIntoBackoff 1
-scalar Thesis.rsu[0].nic.mac1609_4 SlotsBackoff 3
+scalar Thesis.rsu[0].nic.mac1609_4 SlotsBackoff 1
 scalar Thesis.rsu[0].nic.mac1609_4 NumInternalContention 0
-scalar Thesis.rsu[0].nic.mac1609_4 totalBusyTime 0.000209
+scalar Thesis.rsu[0].nic.mac1609_4 totalBusyTime 0.000105
 

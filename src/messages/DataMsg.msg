@@ -18,21 +18,18 @@
 //
 cplusplus {{
 #include "veins/base/utils/Coord.h"
+#include "veins/modules/messages/BaseFrame1609_4_m.h"
+#include "veins/base/utils/SimpleAddress.h"
 }}
 
+namespace veins;
+
+class BaseFrame1609_4;
 class noncobject Coord;
+class LAddress::L2Type extends void;
 
-
-packet Data {
-    double senderDirection = 0;
-    
-    double messageDirection;
-    Coord messageOriginPosition;
-    double messageROI;
-    simtime_t messageOriginTime;
-    simtime_t messageTTL = 60;
-    int hops;
-    
-    bool fromSCF = false;
-    
+packet DataMsg extends BaseFrame1609_4 {
+    string demoData;
+    LAddress::L2Type senderAddress = -1;
+    int serial = 0;
 }

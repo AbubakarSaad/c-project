@@ -15,12 +15,14 @@
 
 #include "MyThesisApp.h"
 
-Define_Module(MyThesisApp);
+Define_Module(veins::MyThesisApp);
+
+using namespace veins;
 
 
 void MyThesisApp::initialize(int stage)
 {
-    BaseWaveApplLayer::initialize(stage);
+    DemoBaseApplLayer::initialize(stage);
 
     EV << "Initialize the stage1111?" << endl;
 
@@ -36,14 +38,14 @@ void MyThesisApp::initialize(int stage)
     }
 }
 
-void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
+void MyThesisApp::onWSA(DemoServiceAdvertisment* wsa) {
     if (currentSubscribedServiceId == -1) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
-        currentSubscribedServiceId = wsa->getPsid();
-        if  (currentOfferedServiceId != wsa->getPsid()) {
-            stopService();
-            startService((Channels::ChannelNumber) wsa->getTargetChannel(), wsa->getPsid(), "Mirrored Traffic Service");
-        }
+       mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
+       currentSubscribedServiceId = wsa->getPsid();
+       if (currentOfferedServiceId != wsa->getPsid()) {
+           stopService();
+           startService(static_cast<Channel>(wsa->getTargetChannel()), wsa->getPsid(), "Mirrored Traffic Service");
+       }
     }
 }
 
@@ -66,13 +68,14 @@ string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
 
-void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
+void MyThesisApp::onBSM(DemoSafetyMessage* bsm) {
     EV << "ONBSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,yellow");
 
     if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
 
         if(simTime() > 15 && simTime() < 20 && !is_flooded) {
+
 
             int source_id = temp_bsm->getSenderAddress();
             int hop_end_count = temp_bsm->getSerial();
@@ -105,19 +108,19 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 }
 
 
-void MyThesisApp::onWSM(WaveShortMessage* wsm) {
+void MyThesisApp::onWSM(BaseFrame1609_4* wsm) {
 
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
 
-
+    DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm);
 
 //    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
-    if(wsm->getSenderAddress() != myId) {
+    if(temp_wsm->getSenderAddress() != myId) {
 //        WaveShortMessage* wsm1 = new WaveShortMessage();
 
-        wsm->setSenderAddress(myId);
-        wsm->setSerial(3);
+        temp_wsm->setSenderAddress(myId);
+        temp_wsm->setSerial(3);
         scheduleAt(simTime() + 3 + uniform(0.01,0.2), wsm->dup());
     }
 }
@@ -138,13 +141,13 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
 
     }
     else {
-        BaseWaveApplLayer::handleSelfMsg(msg);
+        DemoBaseApplLayer::handleSelfMsg(msg);
     }
 }
 
 
 void MyThesisApp::handlePositionUpdate(cObject* obj) {
-    BaseWaveApplLayer::handlePositionUpdate(obj);
+    DemoBaseApplLayer::handlePositionUpdate(obj);
 
     EV << "Position Update " << endl;
 

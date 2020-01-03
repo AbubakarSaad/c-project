@@ -13,17 +13,19 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef SRC_RSU11P_H_
-#define SRC_RSU11P_H_
+#pragma once
+
+#include "veins/veins.h"
 
 #include <fstream>
-#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
+#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 #include "src/messages/BeaconMsg_m.h"
 #include <iostream>
 
 using namespace std;
+namespace veins {
 
-class RSU11p : public BaseWaveApplLayer {
+class VEINS_API RSU11p : public DemoBaseApplLayer {
 private:
     /**
      * Struct used for MDP of current node
@@ -56,13 +58,12 @@ private:
         // Stores the node information of mdp state and updates accordingly
         map<int, MDPinfo*> rsuTable;
 
-        virtual void onWSM(WaveShortMessage* wsm);
-        virtual void onWSA(WaveServiceAdvertisment* wsa);
-        virtual void onBSM(BasicSafetyMessage* bsm);
+        virtual void onWSM(BaseFrame1609_4* wsm);
+        virtual void onWSA(DemoServiceAdvertisment* wsa);
+        virtual void onBSM(DemoSafetyMessage* bsm);
 
     public:
         virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage* msg);
 };
-
-#endif /* SRC_RSU11P_H_ */
+};
