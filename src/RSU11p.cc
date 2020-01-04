@@ -46,7 +46,7 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         temp_ids = temp_bsm->getNodesIds();
 
         if(bsm->isSelfMessage()) {
-           if(simTime() >= 15 && simTime() <= 45) {
+           if(simTime() >= 15 && simTime() <= 20) {
                temp_bsm->setSenderAddress(myId);
                //temp_bsm->setNodesIds(to_string(myId).c_str());
                temp_bsm->setSerial(4);
@@ -56,6 +56,8 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
                populateWSM(temp_bsm);
                sendDown(temp_bsm->dup());
            }
+       }else if (simTime() > 20 && simTime() <= 35 ) {
+
        }
     } else {
         BaseWaveApplLayer::handleSelfMsg(msg);
@@ -80,11 +82,33 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
 
 void RSU11p::onBSM(BasicSafetyMessage* bsm) {
     EV << "RSUBSM" << endl;
-    string temp_ids = "";
-    if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
-        temp_ids = temp_bsm->getNodesIds();
 
-        EV << "Ids in RSU: " << temp_ids << endl;
+    if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
+
+        if(simTime() > 15 && simTime() < 20 && !is_flooded) {
+
+           int source_id = temp_bsm->getSenderAddress();
+           int hop_end_count = temp_bsm->getSerial();
+           int hop_count = temp_bsm->getHop();
+
+           neighbours.insert(pair<int, vector<int> > (hop_count, vector<int>()));
+           neighbours[hop_count].push_back(source_id);
+           neighbours[hop_count].push_back(hop_end_count);
+
+           // "Kinda" flood networks
+           temp_bsm->setSenderAddress(myId);
+
+           hop_end_count = hop_end_count - 1;
+           temp_bsm->setSerial(hop_end_count);
+
+           hop_count = hop_count + 1;
+           temp_bsm->setHop(hop_count);
+
+           populateWSM(bsm);
+           is_flooded = true;
+           scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
+
+       }
 
     }
 
