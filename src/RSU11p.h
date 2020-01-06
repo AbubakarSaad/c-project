@@ -54,6 +54,7 @@ private:
 
     protected:
         // Stores the node information of mdp state and updates accordingly
+        map<int, vector<int>> neighbours;
         map<int, MDPinfo*> rsuTable;
 
         virtual void onWSM(WaveShortMessage* wsm);
