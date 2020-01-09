@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "veins/veins.h"
+
 #include <fstream>
 #include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 #include "src/messages/BeaconMsg_m.h"

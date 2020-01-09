@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "veins/veins.h"
+
 #include <omnetpp.h>
 #include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
@@ -30,7 +32,8 @@
 
 using namespace omnetpp;
 using namespace std;
-using namespace veins;
+
+namespace veins {
 
 class VEINS_API MyThesisApp : public DemoBaseApplLayer {
 private:
@@ -99,4 +102,4 @@ private:
        virtual void handleSelfMsg(cMessage* msg);
        virtual void handlePositionUpdate(cObject* obj);
 };
-
+};

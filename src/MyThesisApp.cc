@@ -15,9 +15,9 @@
 
 #include "MyThesisApp.h"
 
-using namespace veins;
-
 Define_Module(veins::MyThesisApp);
+
+using namespace veins;
 
 
 void MyThesisApp::initialize(int stage)
