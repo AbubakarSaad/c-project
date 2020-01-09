@@ -14,12 +14,12 @@
 // 
 
 package globcomm.src;
-import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
+import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
 
-simple RSU11p extends BaseWaveApplLayer
+simple RSU11p extends DemoBaseApplLayer
 {
  	
    		
-   		@class(RSU11p);
+   		@class(veins::RSU11p);
     
 }

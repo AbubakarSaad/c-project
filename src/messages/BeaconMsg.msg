@@ -19,13 +19,16 @@
 
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/BasicSafetyMessage_m.h"
+#include "veins/modules/messages/BaseFrame1609_4_m.h"
 }}
 
-class BasicSafetyMessage;
-class noncobject Coord;
+namespace veins;
 
-packet BeaconMsg extends BasicSafetyMessage {
+class BaseFrame1609_4;
+class noncobject Coord;
+class LAddress::L2Type extends void;
+
+packet BeaconMsg extends BaseFrame1609_4 {
     Coord messageOriginPosition;
     double senderDirection;
     string nodesIds;

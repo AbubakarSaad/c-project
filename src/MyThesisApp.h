@@ -13,11 +13,10 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef SRC_MYTHESISAPP_H_
-#define SRC_MYTHESISAPP_H_
+#pragma once
 
 #include <omnetpp.h>
-#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
+#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "src/messages/BeaconMsg_m.h"
 #include <string.h>
@@ -29,11 +28,11 @@
 #include <sstream>
 //#include "RSU11p.h"
 
-
 using namespace omnetpp;
 using namespace std;
+using namespace veins;
 
-class MyThesisApp : public BaseWaveApplLayer {
+class VEINS_API MyThesisApp : public DemoBaseApplLayer {
 private:
     /**
      * Struct used for MDP of current node
@@ -93,12 +92,11 @@ private:
        // Stores the node information of mdp state and updates accordingly
        map<int, MDPinfo*> nodesTable;
 
-       virtual void onBSM(BasicSafetyMessage* bsm);
-       virtual void onWSM(WaveShortMessage* wsm);
-       virtual void onWSA(WaveServiceAdvertisment* wsa);
+       virtual void onBSM(DemoSafetyMessage* bsm);
+       virtual void onWSM(BaseFrame1609_4* wsm);
+       virtual void onWSA(DemoServiceAdvertisment* wsa);
 
        virtual void handleSelfMsg(cMessage* msg);
        virtual void handlePositionUpdate(cObject* obj);
 };
 
-#endif /* SRC_MYTHESISAPP_H_ */

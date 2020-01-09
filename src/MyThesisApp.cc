@@ -15,12 +15,14 @@
 
 #include "MyThesisApp.h"
 
-Define_Module(MyThesisApp);
+using namespace veins;
+
+Define_Module(veins::MyThesisApp);
 
 
 void MyThesisApp::initialize(int stage)
 {
-    BaseWaveApplLayer::initialize(stage);
+    DemoBaseApplLayer::initialize(stage);
 
     EV << "Initialize the stage1111?" << endl;
 
@@ -36,13 +38,13 @@ void MyThesisApp::initialize(int stage)
     }
 }
 
-void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
+void MyThesisApp::onWSA(DemoServiceAdvertisment* wsa) {
     if (currentSubscribedServiceId == -1) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
         currentSubscribedServiceId = wsa->getPsid();
         if  (currentOfferedServiceId != wsa->getPsid()) {
             stopService();
-            startService((Channels::ChannelNumber) wsa->getTargetChannel(), wsa->getPsid(), "Mirrored Traffic Service");
+            startService(static_cast<Channel>(wsa->getTargetChannel()), wsa->getPsid(), "Mirrored Traffic Service");
         }
     }
 }
@@ -66,7 +68,7 @@ string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
 
-void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
+void MyThesisApp::onBSM(DemoSafetyMessage* bsm) {
     EV << "ONBSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,yellow");
 
@@ -105,7 +107,7 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 }
 
 
-void MyThesisApp::onWSM(WaveShortMessage* wsm) {
+void MyThesisApp::onWSM(BaseFrame1609_4* wsm) {
 
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
@@ -138,13 +140,13 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
 
     }
     else {
-        BaseWaveApplLayer::handleSelfMsg(msg);
+        DemoBaseApplLayer::handleSelfMsg(msg);
     }
 }
 
 
 void MyThesisApp::handlePositionUpdate(cObject* obj) {
-    BaseWaveApplLayer::handlePositionUpdate(obj);
+    DemoBaseApplLayer::handlePositionUpdate(obj);
 
     EV << "Position Update " << endl;
 

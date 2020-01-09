@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.3 from src/messages/BeaconMsg.msg.
+// Generated file, do not edit! Created by nedtool 5.5 from src/messages/BeaconMsg.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -148,6 +148,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
+namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -179,13 +180,13 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 
 Register_Class(BeaconMsg)
 
-BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
+BeaconMsg::BeaconMsg(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
 {
     this->senderDirection = 0;
     this->hop = 0;
 }
 
-BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
+BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::veins::BaseFrame1609_4(other)
 {
     copy(other);
 }
@@ -197,7 +198,7 @@ BeaconMsg::~BeaconMsg()
 BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
 {
     if (this==&other) return *this;
-    ::BasicSafetyMessage::operator=(other);
+    ::veins::BaseFrame1609_4::operator=(other);
     copy(other);
     return *this;
 }
@@ -212,7 +213,7 @@ void BeaconMsg::copy(const BeaconMsg& other)
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::BasicSafetyMessage::parsimPack(b);
+    ::veins::BaseFrame1609_4::parsimPack(b);
     doParsimPacking(b,this->messageOriginPosition);
     doParsimPacking(b,this->senderDirection);
     doParsimPacking(b,this->nodesIds);
@@ -221,7 +222,7 @@ void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::BasicSafetyMessage::parsimUnpack(b);
+    ::veins::BaseFrame1609_4::parsimUnpack(b);
     doParsimUnpacking(b,this->messageOriginPosition);
     doParsimUnpacking(b,this->senderDirection);
     doParsimUnpacking(b,this->nodesIds);
@@ -298,7 +299,7 @@ class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
 
 Register_ClassDescriptor(BeaconMsgDescriptor)
 
-BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("BeaconMsg", "BasicSafetyMessage")
+BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("veins::BeaconMsg", "veins::BaseFrame1609_4")
 {
     propertynames = nullptr;
 }
@@ -516,4 +517,5 @@ void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, i
     }
 }
 
+} // namespace veins
 
