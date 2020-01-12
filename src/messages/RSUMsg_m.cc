@@ -148,6 +148,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
+namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -179,13 +180,13 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 
 Register_Class(RSUMsg)
 
-RSUMsg::RSUMsg(const char *name, short kind) : ::WaveShortMessage(name,kind)
+RSUMsg::RSUMsg(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
 {
     this->psid = -100;
     this->msg = "from rsu";
 }
 
-RSUMsg::RSUMsg(const RSUMsg& other) : ::WaveShortMessage(other)
+RSUMsg::RSUMsg(const RSUMsg& other) : ::veins::BaseFrame1609_4(other)
 {
     copy(other);
 }
@@ -197,7 +198,7 @@ RSUMsg::~RSUMsg()
 RSUMsg& RSUMsg::operator=(const RSUMsg& other)
 {
     if (this==&other) return *this;
-    ::WaveShortMessage::operator=(other);
+    ::veins::BaseFrame1609_4::operator=(other);
     copy(other);
     return *this;
 }
@@ -210,14 +211,14 @@ void RSUMsg::copy(const RSUMsg& other)
 
 void RSUMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::WaveShortMessage::parsimPack(b);
+    ::veins::BaseFrame1609_4::parsimPack(b);
     doParsimPacking(b,this->psid);
     doParsimPacking(b,this->msg);
 }
 
 void RSUMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::WaveShortMessage::parsimUnpack(b);
+    ::veins::BaseFrame1609_4::parsimUnpack(b);
     doParsimUnpacking(b,this->psid);
     doParsimUnpacking(b,this->msg);
 }
@@ -272,7 +273,7 @@ class RSUMsgDescriptor : public omnetpp::cClassDescriptor
 
 Register_ClassDescriptor(RSUMsgDescriptor)
 
-RSUMsgDescriptor::RSUMsgDescriptor() : omnetpp::cClassDescriptor("RSUMsg", "WaveShortMessage")
+RSUMsgDescriptor::RSUMsgDescriptor() : omnetpp::cClassDescriptor("veins::RSUMsg", "veins::BaseFrame1609_4")
 {
     propertynames = nullptr;
 }
@@ -477,4 +478,5 @@ void *RSUMsgDescriptor::getFieldStructValuePointer(void *object, int field, int 
     }
 }
 
+} // namespace veins
 

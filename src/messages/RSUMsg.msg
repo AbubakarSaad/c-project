@@ -19,14 +19,18 @@
 
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/WaveShortMessage_m.h"
+#include "veins/modules/messages/BaseFrame1609_4_m.h"
 }}
 
-class WaveShortMessage;
+namespace veins;
+
+class BaseFrame1609_4;
+class noncobject Coord;
+class LAddress::L2Type extends void;
 
 
 
-packet RSUMsg extends WaveShortMessage {
+packet RSUMsg extends BaseFrame1609_4 {
     int psid = -100;
     string msg = "from rsu";
 }
