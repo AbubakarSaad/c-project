@@ -148,6 +148,7 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
+namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -177,161 +178,132 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
     return out;
 }
 
-Register_Class(Data)
+Register_Class(DataMsg)
 
-Data::Data(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
+DataMsg::DataMsg(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
 {
     this->senderDirection = 0;
-    this->messageDirection = 0;
-    this->messageROI = 0;
-    this->messageOriginTime = 0;
-    this->messageTTL = 60;
-    this->hops = 0;
-    this->fromSCF = false;
+    this->senderAddress = -1;
+    this->serial = 0;
+    this->hop = 0;
 }
 
-Data::Data(const Data& other) : ::omnetpp::cPacket(other)
+DataMsg::DataMsg(const DataMsg& other) : ::veins::BaseFrame1609_4(other)
 {
     copy(other);
 }
 
-Data::~Data()
+DataMsg::~DataMsg()
 {
 }
 
-Data& Data::operator=(const Data& other)
+DataMsg& DataMsg::operator=(const DataMsg& other)
 {
     if (this==&other) return *this;
-    ::omnetpp::cPacket::operator=(other);
+    ::veins::BaseFrame1609_4::operator=(other);
     copy(other);
     return *this;
 }
 
-void Data::copy(const Data& other)
+void DataMsg::copy(const DataMsg& other)
 {
-    this->senderDirection = other.senderDirection;
-    this->messageDirection = other.messageDirection;
     this->messageOriginPosition = other.messageOriginPosition;
-    this->messageROI = other.messageROI;
-    this->messageOriginTime = other.messageOriginTime;
-    this->messageTTL = other.messageTTL;
-    this->hops = other.hops;
-    this->fromSCF = other.fromSCF;
+    this->senderDirection = other.senderDirection;
+    this->nodesIds = other.nodesIds;
+    this->senderAddress = other.senderAddress;
+    this->serial = other.serial;
+    this->hop = other.hop;
 }
 
-void Data::parsimPack(omnetpp::cCommBuffer *b) const
+void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::omnetpp::cPacket::parsimPack(b);
-    doParsimPacking(b,this->senderDirection);
-    doParsimPacking(b,this->messageDirection);
+    ::veins::BaseFrame1609_4::parsimPack(b);
     doParsimPacking(b,this->messageOriginPosition);
-    doParsimPacking(b,this->messageROI);
-    doParsimPacking(b,this->messageOriginTime);
-    doParsimPacking(b,this->messageTTL);
-    doParsimPacking(b,this->hops);
-    doParsimPacking(b,this->fromSCF);
+    doParsimPacking(b,this->senderDirection);
+    doParsimPacking(b,this->nodesIds);
+    doParsimPacking(b,this->senderAddress);
+    doParsimPacking(b,this->serial);
+    doParsimPacking(b,this->hop);
 }
 
-void Data::parsimUnpack(omnetpp::cCommBuffer *b)
+void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::omnetpp::cPacket::parsimUnpack(b);
-    doParsimUnpacking(b,this->senderDirection);
-    doParsimUnpacking(b,this->messageDirection);
+    ::veins::BaseFrame1609_4::parsimUnpack(b);
     doParsimUnpacking(b,this->messageOriginPosition);
-    doParsimUnpacking(b,this->messageROI);
-    doParsimUnpacking(b,this->messageOriginTime);
-    doParsimUnpacking(b,this->messageTTL);
-    doParsimUnpacking(b,this->hops);
-    doParsimUnpacking(b,this->fromSCF);
+    doParsimUnpacking(b,this->senderDirection);
+    doParsimUnpacking(b,this->nodesIds);
+    doParsimUnpacking(b,this->senderAddress);
+    doParsimUnpacking(b,this->serial);
+    doParsimUnpacking(b,this->hop);
 }
 
-double Data::getSenderDirection() const
-{
-    return this->senderDirection;
-}
-
-void Data::setSenderDirection(double senderDirection)
-{
-    this->senderDirection = senderDirection;
-}
-
-double Data::getMessageDirection() const
-{
-    return this->messageDirection;
-}
-
-void Data::setMessageDirection(double messageDirection)
-{
-    this->messageDirection = messageDirection;
-}
-
-Coord& Data::getMessageOriginPosition()
+Coord& DataMsg::getMessageOriginPosition()
 {
     return this->messageOriginPosition;
 }
 
-void Data::setMessageOriginPosition(const Coord& messageOriginPosition)
+void DataMsg::setMessageOriginPosition(const Coord& messageOriginPosition)
 {
     this->messageOriginPosition = messageOriginPosition;
 }
 
-double Data::getMessageROI() const
+double DataMsg::getSenderDirection() const
 {
-    return this->messageROI;
+    return this->senderDirection;
 }
 
-void Data::setMessageROI(double messageROI)
+void DataMsg::setSenderDirection(double senderDirection)
 {
-    this->messageROI = messageROI;
+    this->senderDirection = senderDirection;
 }
 
-::omnetpp::simtime_t Data::getMessageOriginTime() const
+const char * DataMsg::getNodesIds() const
 {
-    return this->messageOriginTime;
+    return this->nodesIds.c_str();
 }
 
-void Data::setMessageOriginTime(::omnetpp::simtime_t messageOriginTime)
+void DataMsg::setNodesIds(const char * nodesIds)
 {
-    this->messageOriginTime = messageOriginTime;
+    this->nodesIds = nodesIds;
 }
 
-::omnetpp::simtime_t Data::getMessageTTL() const
+LAddress::L2Type& DataMsg::getSenderAddress()
 {
-    return this->messageTTL;
+    return this->senderAddress;
 }
 
-void Data::setMessageTTL(::omnetpp::simtime_t messageTTL)
+void DataMsg::setSenderAddress(const LAddress::L2Type& senderAddress)
 {
-    this->messageTTL = messageTTL;
+    this->senderAddress = senderAddress;
 }
 
-int Data::getHops() const
+int DataMsg::getSerial() const
 {
-    return this->hops;
+    return this->serial;
 }
 
-void Data::setHops(int hops)
+void DataMsg::setSerial(int serial)
 {
-    this->hops = hops;
+    this->serial = serial;
 }
 
-bool Data::getFromSCF() const
+int DataMsg::getHop() const
 {
-    return this->fromSCF;
+    return this->hop;
 }
 
-void Data::setFromSCF(bool fromSCF)
+void DataMsg::setHop(int hop)
 {
-    this->fromSCF = fromSCF;
+    this->hop = hop;
 }
 
-class DataDescriptor : public omnetpp::cClassDescriptor
+class DataMsgDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertynames;
   public:
-    DataDescriptor();
-    virtual ~DataDescriptor();
+    DataMsgDescriptor();
+    virtual ~DataMsgDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -353,24 +325,24 @@ class DataDescriptor : public omnetpp::cClassDescriptor
     virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
 };
 
-Register_ClassDescriptor(DataDescriptor)
+Register_ClassDescriptor(DataMsgDescriptor)
 
-DataDescriptor::DataDescriptor() : omnetpp::cClassDescriptor("Data", "omnetpp::cPacket")
+DataMsgDescriptor::DataMsgDescriptor() : omnetpp::cClassDescriptor("veins::DataMsg", "veins::BaseFrame1609_4")
 {
     propertynames = nullptr;
 }
 
-DataDescriptor::~DataDescriptor()
+DataMsgDescriptor::~DataMsgDescriptor()
 {
     delete[] propertynames;
 }
 
-bool DataDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool DataMsgDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<Data *>(obj)!=nullptr;
+    return dynamic_cast<DataMsg *>(obj)!=nullptr;
 }
 
-const char **DataDescriptor::getPropertyNames() const
+const char **DataMsgDescriptor::getPropertyNames() const
 {
     if (!propertynames) {
         static const char *names[] = {  nullptr };
@@ -381,19 +353,19 @@ const char **DataDescriptor::getPropertyNames() const
     return propertynames;
 }
 
-const char *DataDescriptor::getProperty(const char *propertyname) const
+const char *DataMsgDescriptor::getProperty(const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : nullptr;
 }
 
-int DataDescriptor::getFieldCount() const
+int DataMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 8+basedesc->getFieldCount() : 8;
+    return basedesc ? 6+basedesc->getFieldCount() : 6;
 }
 
-unsigned int DataDescriptor::getFieldTypeFlags(int field) const
+unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -402,19 +374,17 @@ unsigned int DataDescriptor::getFieldTypeFlags(int field) const
         field -= basedesc->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
+        FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
-        FD_ISEDITABLE,
     };
-    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
 }
 
-const char *DataDescriptor::getFieldName(int field) const
+const char *DataMsgDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -423,34 +393,30 @@ const char *DataDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "senderDirection",
-        "messageDirection",
         "messageOriginPosition",
-        "messageROI",
-        "messageOriginTime",
-        "messageTTL",
-        "hops",
-        "fromSCF",
+        "senderDirection",
+        "nodesIds",
+        "senderAddress",
+        "serial",
+        "hop",
     };
-    return (field>=0 && field<8) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<6) ? fieldNames[field] : nullptr;
 }
 
-int DataDescriptor::findField(const char *fieldName) const
+int DataMsgDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+0;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageDirection")==0) return base+1;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginPosition")==0) return base+2;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageROI")==0) return base+3;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginTime")==0) return base+4;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageTTL")==0) return base+5;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hops")==0) return base+6;
-    if (fieldName[0]=='f' && strcmp(fieldName, "fromSCF")==0) return base+7;
+    if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginPosition")==0) return base+0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "serial")==0) return base+4;
+    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+5;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
-const char *DataDescriptor::getFieldTypeString(int field) const
+const char *DataMsgDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -459,19 +425,17 @@ const char *DataDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "double",
-        "double",
         "Coord",
         "double",
-        "simtime_t",
-        "simtime_t",
+        "string",
+        "LAddress::L2Type",
         "int",
-        "bool",
+        "int",
     };
-    return (field>=0 && field<8) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **DataDescriptor::getFieldPropertyNames(int field) const
+const char **DataMsgDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -484,7 +448,7 @@ const char **DataDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *DataDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *DataMsgDescriptor::getFieldProperty(int field, const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -497,7 +461,7 @@ const char *DataDescriptor::getFieldProperty(int field, const char *propertyname
     }
 }
 
-int DataDescriptor::getFieldArraySize(void *object, int field) const
+int DataMsgDescriptor::getFieldArraySize(void *object, int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -505,13 +469,13 @@ int DataDescriptor::getFieldArraySize(void *object, int field) const
             return basedesc->getFieldArraySize(object, field);
         field -= basedesc->getFieldCount();
     }
-    Data *pp = (Data *)object; (void)pp;
+    DataMsg *pp = (DataMsg *)object; (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-const char *DataDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+const char *DataMsgDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -519,13 +483,13 @@ const char *DataDescriptor::getFieldDynamicTypeString(void *object, int field, i
             return basedesc->getFieldDynamicTypeString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Data *pp = (Data *)object; (void)pp;
+    DataMsg *pp = (DataMsg *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string DataDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string DataMsgDescriptor::getFieldValueAsString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -533,21 +497,19 @@ std::string DataDescriptor::getFieldValueAsString(void *object, int field, int i
             return basedesc->getFieldValueAsString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Data *pp = (Data *)object; (void)pp;
+    DataMsg *pp = (DataMsg *)object; (void)pp;
     switch (field) {
-        case 0: return double2string(pp->getSenderDirection());
-        case 1: return double2string(pp->getMessageDirection());
-        case 2: {std::stringstream out; out << pp->getMessageOriginPosition(); return out.str();}
-        case 3: return double2string(pp->getMessageROI());
-        case 4: return simtime2string(pp->getMessageOriginTime());
-        case 5: return simtime2string(pp->getMessageTTL());
-        case 6: return long2string(pp->getHops());
-        case 7: return bool2string(pp->getFromSCF());
+        case 0: {std::stringstream out; out << pp->getMessageOriginPosition(); return out.str();}
+        case 1: return double2string(pp->getSenderDirection());
+        case 2: return oppstring2string(pp->getNodesIds());
+        case 3: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
+        case 4: return long2string(pp->getSerial());
+        case 5: return long2string(pp->getHop());
         default: return "";
     }
 }
 
-bool DataDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+bool DataMsgDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -555,20 +517,17 @@ bool DataDescriptor::setFieldValueAsString(void *object, int field, int i, const
             return basedesc->setFieldValueAsString(object,field,i,value);
         field -= basedesc->getFieldCount();
     }
-    Data *pp = (Data *)object; (void)pp;
+    DataMsg *pp = (DataMsg *)object; (void)pp;
     switch (field) {
-        case 0: pp->setSenderDirection(string2double(value)); return true;
-        case 1: pp->setMessageDirection(string2double(value)); return true;
-        case 3: pp->setMessageROI(string2double(value)); return true;
-        case 4: pp->setMessageOriginTime(string2simtime(value)); return true;
-        case 5: pp->setMessageTTL(string2simtime(value)); return true;
-        case 6: pp->setHops(string2long(value)); return true;
-        case 7: pp->setFromSCF(string2bool(value)); return true;
+        case 1: pp->setSenderDirection(string2double(value)); return true;
+        case 2: pp->setNodesIds((value)); return true;
+        case 4: pp->setSerial(string2long(value)); return true;
+        case 5: pp->setHop(string2long(value)); return true;
         default: return false;
     }
 }
 
-const char *DataDescriptor::getFieldStructName(int field) const
+const char *DataMsgDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -577,12 +536,13 @@ const char *DataDescriptor::getFieldStructName(int field) const
         field -= basedesc->getFieldCount();
     }
     switch (field) {
-        case 2: return omnetpp::opp_typename(typeid(Coord));
+        case 0: return omnetpp::opp_typename(typeid(Coord));
+        case 3: return omnetpp::opp_typename(typeid(LAddress::L2Type));
         default: return nullptr;
     };
 }
 
-void *DataDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+void *DataMsgDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -590,11 +550,13 @@ void *DataDescriptor::getFieldStructValuePointer(void *object, int field, int i)
             return basedesc->getFieldStructValuePointer(object, field, i);
         field -= basedesc->getFieldCount();
     }
-    Data *pp = (Data *)object; (void)pp;
+    DataMsg *pp = (DataMsg *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getMessageOriginPosition()); break;
+        case 0: return (void *)(&pp->getMessageOriginPosition()); break;
+        case 3: return (void *)(&pp->getSenderAddress()); break;
         default: return nullptr;
     }
 }
 
+} // namespace veins
 

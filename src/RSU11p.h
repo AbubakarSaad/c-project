@@ -23,7 +23,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace veins;
+namespace veins {
 
 class VEINS_API RSU11p : public DemoBaseApplLayer {
 private:
@@ -66,4 +66,5 @@ private:
     public:
         virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage* msg);
+};
 };

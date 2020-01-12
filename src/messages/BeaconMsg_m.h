@@ -32,6 +32,8 @@ namespace veins {
  *     Coord messageOriginPosition;
  *     double senderDirection;
  *     string nodesIds;
+ *     LAddress::L2Type senderAddress = -1;
+ *     int serial = 0;
  *     int hop;
  * }
  * </pre>
@@ -42,6 +44,8 @@ class BeaconMsg : public ::veins::BaseFrame1609_4
     Coord messageOriginPosition;
     double senderDirection;
     ::omnetpp::opp_string nodesIds;
+    LAddress::L2Type senderAddress;
+    int serial;
     int hop;
 
   private:
@@ -68,6 +72,11 @@ class BeaconMsg : public ::veins::BaseFrame1609_4
     virtual void setSenderDirection(double senderDirection);
     virtual const char * getNodesIds() const;
     virtual void setNodesIds(const char * nodesIds);
+    virtual LAddress::L2Type& getSenderAddress();
+    virtual const LAddress::L2Type& getSenderAddress() const {return const_cast<BeaconMsg*>(this)->getSenderAddress();}
+    virtual void setSenderAddress(const LAddress::L2Type& senderAddress);
+    virtual int getSerial() const;
+    virtual void setSerial(int serial);
     virtual int getHop() const;
     virtual void setHop(int hop);
 };

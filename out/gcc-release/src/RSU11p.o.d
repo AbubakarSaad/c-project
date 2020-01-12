@@ -1,4 +1,4 @@
-out/gcc-release//src/MyThesisApp.o: src/MyThesisApp.cc src/MyThesisApp.h \
+out/gcc-release//src/RSU11p.o: src/RSU11p.cc src/RSU11p.h \
  /home/abu/src/veins-veins-5.0/src/veins/veins.h \
  /home/abu/src/omnetpp-5.5.1/include/omnetpp.h \
  /home/abu/src/veins-veins-5.0/src/veins/modules/application/ieee80211p/DemoBaseApplLayer.h \
@@ -48,9 +48,9 @@ out/gcc-release//src/MyThesisApp.o: src/MyThesisApp.cc src/MyThesisApp.h \
  /home/abu/src/veins-veins-5.0/src/veins/modules/mobility/traci/TraCIRegionOfInterest.h \
  /home/abu/src/veins-veins-5.0/src/veins/modules/mobility/traci/TraCICommandInterface.h \
  /home/abu/src/veins-veins-5.0/src/veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h \
- src/messages/BeaconMsg_m.h src/messages/DataMsg_m.h
+ src/messages/BeaconMsg_m.h
 
-src/MyThesisApp.h:
+src/RSU11p.h:
 
 /home/abu/src/veins-veins-5.0/src/veins/veins.h:
 
@@ -151,5 +151,3 @@ src/MyThesisApp.h:
 /home/abu/src/veins-veins-5.0/src/veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h:
 
 src/messages/BeaconMsg_m.h:
-
-src/messages/DataMsg_m.h:

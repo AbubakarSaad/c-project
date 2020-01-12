@@ -32,5 +32,7 @@ packet BeaconMsg extends BaseFrame1609_4 {
     Coord messageOriginPosition;
     double senderDirection;
     string nodesIds;
+    LAddress::L2Type senderAddress = -1;
+    int serial = 0;
     int hop;
 }

@@ -16,12 +16,12 @@
 #include "RSU11p.h"
 
 Define_Module(veins::RSU11p);
+using namespace veins;
 
 void RSU11p::initialize(int stage) {
     // Start the flooding after 10s and last for 10s = total of 20s
     DemoBaseApplLayer::initialize(stage);
 
-    string temp_id = "";
     if(stage == 0) {
         EV << "Init stage of RSU" << endl;
 
@@ -69,15 +69,15 @@ void RSU11p::onWSA(DemoServiceAdvertisment* wsa) {
     //if this RSU receives a WSA for service 42, it will tune to the chan
     EV << "RSUWSA" << endl;
     if (wsa->getPsid() == 42) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
     }
 }
 void RSU11p::onWSM(BaseFrame1609_4* wsm) {
     EV << "RSUWSM" << endl;
     //this rsu repeats the received traffic update in 2 seconds plus some random delay
     EV << "My id: " << myId << endl;
-    wsm->setSenderAddress(myId);
-    sendDelayedDown(wsm->dup(), 1 + uniform(0.01,0.2));
+    //wsm->setSenderAddress(myId);
+    //sendDelayedDown(wsm->dup(), 1 + uniform(0.01,0.2));
 }
 
 void RSU11p::onBSM(DemoSafetyMessage* bsm) {

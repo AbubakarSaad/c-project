@@ -112,15 +112,16 @@ void MyThesisApp::onWSM(BaseFrame1609_4* wsm) {
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
 
+    if(DataMsg* msg = dynamic_cast<DataMsg*>(wsm)) {
 
+    //    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
+        if(msg->getSenderAddress() != myId) {
+    //        WaveShortMessage* wsm1 = new WaveShortMessage();
 
-//    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
-    if(wsm->getSenderAddress() != myId) {
-//        WaveShortMessage* wsm1 = new WaveShortMessage();
-
-        wsm->setSenderAddress(myId);
-        wsm->setSerial(3);
-        scheduleAt(simTime() + 3 + uniform(0.01,0.2), wsm->dup());
+            msg->setSenderAddress(myId);
+            msg->setSerial(3);
+            scheduleAt(simTime() + 3 + uniform(0.01,0.2), wsm->dup());
+        }
     }
 }
 

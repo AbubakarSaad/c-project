@@ -21,6 +21,7 @@
 #include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "src/messages/BeaconMsg_m.h"
+#include "src/messages/DataMsg_m.h"
 #include <string.h>
 #include <string>
 #include <algorithm>
