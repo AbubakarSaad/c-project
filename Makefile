@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for globcomm
+# OMNeT++/OMNEST Makefile for c-project
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out -KVEINS_PROJ=/home/abu/src/veins-veins-5.0 -DVEINS_IMPORT -I. -I$$\(VEINS_PROJ\)/src -Isrc -L$$\(VEINS_PROJ\)/src -lveins$$\(D\)
 #
 
 # Name of target to be created (-o option)
-TARGET = globcomm$(D)$(EXE_SUFFIX)
+TARGET = c-project$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)
