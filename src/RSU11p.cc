@@ -29,6 +29,9 @@ void RSU11p::initialize(int stage) {
         populateWSM(bsm);
         scheduleAt(simTime() + 15, bsm->dup());
 
+
+        is_flooded = false;
+
     }else if (stage == 1) {
 
         EV << "Stage 1 in RSU" << endl;

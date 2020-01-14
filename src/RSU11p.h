@@ -57,6 +57,8 @@ private:
         map<int, vector<int>> neighbours;
         map<int, MDPinfo*> rsuTable;
 
+        bool is_flooded;
+
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);
         virtual void onBSM(BasicSafetyMessage* bsm);
