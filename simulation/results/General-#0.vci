@@ -1,15 +1,15 @@
-file 19143 1578867284                                           
+file 19143 1579055666                                           
 version 2
-run General-0-20200112-17:14:30-15926
+run General-0-20200114-21:34:13-21917
 attr configname General
-attr datetime 20200112-17:14:30
+attr datetime 20200114-21:34:13
 attr experiment General
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvarsf ""
 attr measurement ""
 attr network globcomm.simulation.Thesis
-attr processid 15926
+attr processid 21917
 attr repetition 0
 attr replication #0
 attr resultdir results
