@@ -16,10 +16,12 @@
 package globcomm.src;
 
 import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
+import org.car2x.veins.modules.mobility.traci.TraCIVehicleInserter;
 
 simple MyThesisApp extends DemoBaseApplLayer
 {
-    parameters:        
+    parameters:
+        
         // Time interval to delete out-dated received beacons
 //        double beaconEntryTTL @unit(s) = default(3s);
 //        
