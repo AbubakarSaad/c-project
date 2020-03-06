@@ -39,7 +39,7 @@ out/clang-release//src/MyThesisApp.o: src/MyThesisApp.cc \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/mobility/traci/TraCICoordinateTransformation.h \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/mobility/traci/TraCICommandInterface.h \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h \
-  src/messages/BeaconMsg_m.h
+  src/messages/BeaconMsg_m.h src/messages/Ack_m.h
 
 src/MyThesisApp.h:
 
@@ -122,3 +122,5 @@ C:/Users/abuba/src/veins-4.7.1/src\veins/modules/mobility/traci/TraCICommandInte
 C:/Users/abuba/src/veins-4.7.1/src\veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h:
 
 src/messages/BeaconMsg_m.h:
+
+src/messages/Ack_m.h:

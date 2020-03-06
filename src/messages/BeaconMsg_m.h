@@ -28,10 +28,17 @@
  * <pre>
  * packet BeaconMsg extends BasicSafetyMessage
  * {
+ *     // meta info
  *     Coord messageOriginPosition;
  *     double senderDirection;
- *     string nodesIds;
+ *     string Path;
  *     int hop;
+ *     int RsuID;
+ *     int DesID;
+ *     int SrcID;
+ *     bool AckMsg = false;
+ * 
+ *     // "message" info
  * }
  * </pre>
  */
@@ -40,8 +47,12 @@ class BeaconMsg : public ::BasicSafetyMessage
   protected:
     Coord messageOriginPosition;
     double senderDirection;
-    ::omnetpp::opp_string nodesIds;
+    ::omnetpp::opp_string Path;
     int hop;
+    int RsuID;
+    int DesID;
+    int SrcID;
+    bool AckMsg;
 
   private:
     void copy(const BeaconMsg& other);
@@ -65,10 +76,18 @@ class BeaconMsg : public ::BasicSafetyMessage
     virtual void setMessageOriginPosition(const Coord& messageOriginPosition);
     virtual double getSenderDirection() const;
     virtual void setSenderDirection(double senderDirection);
-    virtual const char * getNodesIds() const;
-    virtual void setNodesIds(const char * nodesIds);
+    virtual const char * getPath() const;
+    virtual void setPath(const char * Path);
     virtual int getHop() const;
     virtual void setHop(int hop);
+    virtual int getRsuID() const;
+    virtual void setRsuID(int RsuID);
+    virtual int getDesID() const;
+    virtual void setDesID(int DesID);
+    virtual int getSrcID() const;
+    virtual void setSrcID(int SrcID);
+    virtual bool getAckMsg() const;
+    virtual void setAckMsg(bool AckMsg);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const BeaconMsg& obj) {obj.parsimPack(b);}

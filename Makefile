@@ -30,10 +30,17 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/src/MyThesisApp.o $O/src/RSU11p.o $O/src/messages/BeaconMsg_m.o $O/src/messages/DataMsg_m.o $O/src/messages/RSUMsg_m.o
+OBJS = \
+    $O/src/MyThesisApp.o \
+    $O/src/RSU11p.o \
+    $O/src/messages/Ack_m.o \
+    $O/src/messages/BeaconMsg_m.o \
+    $O/src/messages/DataMsg_m.o \
+    $O/src/messages/RSUMsg_m.o
 
 # Message files
 MSGFILES = \
+    src/messages/Ack.msg \
     src/messages/BeaconMsg.msg \
     src/messages/DataMsg.msg \
     src/messages/RSUMsg.msg

@@ -29,12 +29,20 @@ void RSU11p::initialize(int stage) {
         populateWSM(bsm);
         scheduleAt(simTime() + 15, bsm->dup());
 
-
         is_flooded = false;
 
     }else if (stage == 1) {
 
         EV << "Stage 1 in RSU" << endl;
+
+        if(is_flooded) {
+            // this is where I need to send out the main messages
+            // Every node as a neighbours table
+            // And node should bring the message back to rsu for verfiying if the should
+           // DataMsg* wsm = new DataMsg("WSM");
+            //populateWSM(wsm);
+           // scheduleAt(simTime() + 30, wsm->dup());
+        }
 
     }
 
@@ -46,7 +54,6 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         string temp_ids = "";
         BeaconMsg* temp_bsm = new BeaconMsg("Beacon");
 
-        temp_ids = temp_bsm->getNodesIds();
 
         if(bsm->isSelfMessage()) {
            if(simTime() >= 15 && simTime() <= 20) {
@@ -55,15 +62,36 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
                temp_bsm->setSerial(4);
 
                temp_bsm->setHop(1);
-
+               temp_bsm->setRsuID(myId);
                populateWSM(temp_bsm);
                sendDown(temp_bsm->dup());
+
+               is_flooded = true;
            }
        }else if (simTime() > 20 && simTime() <= 35 ) {
 
        }
+
     } else {
         BaseWaveApplLayer::handleSelfMsg(msg);
+    }
+
+
+    if(DataMsg* wsm = dynamic_cast<DataMsg*> (msg)) {
+
+        DataMsg* temp_wsm = new DataMsg("WSM");
+
+        if(wsm->isSelfMessage()) {
+            temp_wsm->setSenderAddress(myId);
+
+            temp_wsm->setSerial(4);
+            temp_wsm->setHop(1);
+
+            populateWSM(temp_wsm);
+            sendDown(temp_wsm->dup());
+
+            is_msged = true;
+        }
     }
 
 }
@@ -77,10 +105,12 @@ void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
 }
 void RSU11p::onWSM(WaveShortMessage* wsm) {
     EV << "RSUWSM" << endl;
-    //this rsu repeats the received traffic update in 2 seconds plus some random delay
-    EV << "My id: " << myId << endl;
-    wsm->setSenderAddress(myId);
-    sendDelayedDown(wsm->dup(), 1 + uniform(0.01,0.2));
+
+
+    // Recived
+
+
+
 }
 
 void RSU11p::onBSM(BasicSafetyMessage* bsm) {
@@ -111,6 +141,16 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
            is_flooded = true;
            scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
 
+       } else if (simTime() > 25 && simTime() < 40) {
+           // recvice the ACK here... And put it in the table
+
+           if(temp_bsm->getDesID() == myId) {
+               int srcID = temp_bsm->getSrcID();
+               string path = temp_bsm->getPath();
+               EV << "IN RSU CLASS " << srcID << " -- " << path << endl;
+               // srcID, path, type of communication (basically this could be MDP object)
+               // nodeStatus.insert(srcID, pair<path, "V2I">);
+           }
        }
 
     }
@@ -118,9 +158,24 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
 
 }
 
+void RSU11p::finish() {
+    BaseWaveApplLayer::finish();
+
+    EV << "When does this work? " << endl;
 
 
+     ofstream log;
+     ostringstream o;
 
+     o << "./results/" << "-hop count-" << "-vector for source id and hop_end_count-" << endl;
+     log.open("./results/results.txt");
+     log << "-hop count-" << "-vector for source id and hop_end_count-" << endl;
+     log.close();
+
+
+    // Print the neighbour table
+
+}
 
 
 

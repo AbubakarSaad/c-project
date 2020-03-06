@@ -19,6 +19,7 @@
 #include <fstream>
 #include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
 #include "src/messages/BeaconMsg_m.h"
+#include "src/messages/DataMsg_m.h"
 #include <iostream>
 
 using namespace std;
@@ -57,7 +58,11 @@ private:
         map<int, vector<int>> neighbours;
         map<int, MDPinfo*> rsuTable;
 
+        // srcID, path & status
+        map<int, pair<string, string>> nodeStatus;
+
         bool is_flooded;
+        bool is_msged;
 
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);
@@ -66,6 +71,7 @@ private:
     public:
         virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage* msg);
+        virtual void finish();
 };
 
 #endif /* SRC_RSU11P_H_ */

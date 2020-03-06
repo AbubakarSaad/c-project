@@ -20,6 +20,7 @@
 #include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "src/messages/BeaconMsg_m.h"
+#include "src/messages/Ack_m.h"
 #include <string.h>
 #include <string>
 #include <algorithm>
@@ -75,30 +76,44 @@ private:
 
     string buildPaths(string path);
 
-
-
-
     public:
        virtual void initialize(int stage);
+
+
        int temp_rec = 0;
 
+
+
     protected:
+       // meta info process
+
+       // variables
        bool is_flooded;
+       bool is_paths;
        simtime_t interval_flood;
        int currentSubscribedServiceId;
+       int RSU_id;
 
        map<int, vector<int>> neighbours;
 
        MDPinfo* init_obj = new MDPinfo;
+
+
        // Stores the node information of mdp state and updates accordingly
        map<int, MDPinfo*> nodesTable;
 
+
+       // functions
        virtual void onBSM(BasicSafetyMessage* bsm);
        virtual void onWSM(WaveShortMessage* wsm);
        virtual void onWSA(WaveServiceAdvertisment* wsa);
 
+
        virtual void handleSelfMsg(cMessage* msg);
        virtual void handlePositionUpdate(cObject* obj);
+
+
+       // "message" info process
 };
 
 #endif /* SRC_MYTHESISAPP_H_ */

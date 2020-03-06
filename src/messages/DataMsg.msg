@@ -18,21 +18,16 @@
 //
 cplusplus {{
 #include "veins/base/utils/Coord.h"
+#include "veins/modules/messages/WaveShortMessage_m.h"
 }}
 
 class noncobject Coord;
+class WaveShortMessage;
 
-
-packet Data {
-    double senderDirection = 0;
-    
-    double messageDirection;
+packet DataMsg extends WaveShortMessage {
     Coord messageOriginPosition;
-    double messageROI;
-    simtime_t messageOriginTime;
-    simtime_t messageTTL = 60;
-    int hops;
-    
-    bool fromSCF = false;
-    
-}
+    double senderDirection;
+    string nodesIds;
+    int hop;
+    int nodeId;
+}	

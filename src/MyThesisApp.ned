@@ -42,7 +42,7 @@ simple MyThesisApp extends BaseWaveApplLayer
         
         double maxGPSError @unit(m) = default(0m);
         
-        double datarate @unit(bps);
+//        double datarate @unit(bps);
         
    		@class(MyThesisApp);
     

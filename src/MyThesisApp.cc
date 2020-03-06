@@ -31,8 +31,8 @@ void MyThesisApp::initialize(int stage)
         init_obj->reward = 0;
 
         is_flooded = false;
+        is_paths = false; // to build paths;
         interval_flood = simTime();
-
     }
 }
 
@@ -49,38 +49,32 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
 
 string MyThesisApp::buildPaths(string path) {
 
-    vector <int> tokens;
-
-    stringstream check1(path);
-
-    string intermediate;
-
-    while(getline(check1, intermediate, '-')) {
-        tokens.push_back(stoi(intermediate));
-    }
-
-    if(tokens.size() > 1) {
-        return "worked";
-    }
+    // 1. store the paths to your neighbours (done)
+    // 2. Have RSU id (done)
+    // 3. Send it back to the RSU
+    // 4. RSU saves the path that is send back
 
     return "failed";
 }
 
 void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
     EV << "ONBSM" << endl;
+
+    // Nodes (Vehicle) ==== V2V or V2I commiuncation
     findHost()->getDisplayString().updateWith("r=16,yellow");
 
-    if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
-
-        if(simTime() > 15 && simTime() < 20 && !is_flooded) {
-
+    if(simTime() >= 15 && simTime() <= 20 && !is_flooded) {
+        EV << "15 and UP" << endl;
+        if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
             int source_id = temp_bsm->getSenderAddress();
             int hop_end_count = temp_bsm->getSerial();
             int hop_count = temp_bsm->getHop();
+            RSU_id = temp_bsm->getRsuID();
 
             neighbours.insert(pair<int, vector<int> > (hop_count, vector<int>()));
             neighbours[hop_count].push_back(source_id);
             neighbours[hop_count].push_back(hop_end_count);
+
 
             // "Kinda" flood networks
             temp_bsm->setSenderAddress(myId);
@@ -91,17 +85,57 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
             hop_count = hop_count + 1;
             temp_bsm->setHop(hop_count);
 
-            populateWSM(bsm);
-            is_flooded = true;
-            scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
+            if(temp_bsm->getAckMsg() == false) {
+                populateWSM(bsm);
+                is_flooded = true;
+                scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
+            }
 
-
-
-            // Changing the parameters
         }
-
     }
 
+    if(simTime() >= 25 && simTime() <= 35 && !is_paths) {
+        EV << "25 and up" << endl;
+        if(Ack* temp_ack = dynamic_cast<Ack*>(bsm)){
+            EV << "ON25" << endl;
+            EV << "build paths" << endl;
+            // Send it back to RSU
+            // This will also attach the path, if they don't have the correct path to the destination
+            int desID = RSU_id;
+            int srcID = myId;
+            string path = to_string(myId);
+
+            Ack* ack_bsm = new Ack("ACK");
+
+            ack_bsm->setDesID(desID);
+            ack_bsm->setSrcID(srcID);
+            ack_bsm->setPath(path.c_str());
+
+            is_paths = true;
+
+
+
+
+            if(ack_bsm->getDesID() != myId && temp_ack->getAckMsg() == true
+                    ) {
+
+                populateWSM(ack_bsm);
+                scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_bsm->dup());
+            // sendDelayedDown(ack_bsm->dup(), 1 + uniform(0.01,0.2));
+
+            } else if (temp_ack->getAckMsg()) {
+
+                string pre_path = temp_ack->getPath();
+                string path = pre_path + "-" + to_string(myId);
+
+
+                populateWSM(ack_bsm);
+                scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_bsm->dup());
+                // sendDelayedDown(ack_bsm->dup(), 1 + uniform(0.01,0.2));
+
+            }
+        }
+    }
 }
 
 
@@ -124,18 +158,23 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
 
 
 void MyThesisApp::handleSelfMsg(cMessage* msg) {
-    //BaseWaveApplLayer::handleSelfMsg(msg);
-    EV << "handleselfmsg " << endl;
 
-
-    EV << "Reward: " <<init_obj->reward << endl;
+    EV << "Reward: " << init_obj->reward << endl;
     if (BeaconMsg* bsm = dynamic_cast<BeaconMsg*>(msg)) {
         //send this message on the service channel until the counter is 3 or higher.
         //this code only runs when channel switching is enabled
-        if(bsm->isSelfMessage()) {
-            sendDelayedDown(bsm->dup(), 1 + uniform(0.01,0.2));
+        if(bsm->getAckMsg() == false) {
+            if(bsm->isSelfMessage()) {
+                sendDelayedDown(bsm->dup(), 1 + uniform(0.01,0.2));
+            }
         }
 
+    }else if(Ack* ack = dynamic_cast<Ack*>(msg)) {
+        if(ack->getAckMsg()) {
+            if(ack->isSelfMessage()) {
+                sendDelayedDown(ack->dup(), 1 + uniform(0.01, 0.2));
+            }
+        }
     }
     else {
         BaseWaveApplLayer::handleSelfMsg(msg);
@@ -147,6 +186,10 @@ void MyThesisApp::handlePositionUpdate(cObject* obj) {
     BaseWaveApplLayer::handlePositionUpdate(obj);
 
     EV << "Position Update " << endl;
+    // Maybe don't use ack, do a boolean in beacon that acts as a ack...
+
+
+
 
     // Run this after every 20s interval
     // 20s simTime(); flood the network
@@ -154,10 +197,7 @@ void MyThesisApp::handlePositionUpdate(cObject* obj) {
     if (simTime() < 50) {
        // if (sentMessage == false) {
         findHost()->getDisplayString().updateWith("r=16,red");
-
-
         BeaconMsg* wsm = new BeaconMsg();
-
     }
 
     if(simTime() > 50) {
