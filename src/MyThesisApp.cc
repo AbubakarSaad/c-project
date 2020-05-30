@@ -41,8 +41,7 @@ void MyThesisApp::initialize(int stage)
         connectivityStatus->setAction("NOACTION");
         connectivityStatus->setState("NONE");
         connectivityStatus->setTranscation("NONE");
-
-
+        connectivityStatus->setReward(0);
 
 
         scheduleAt(simTime() + 100, start_processing);
@@ -64,6 +63,9 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
 string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
+
+// Ryan === Comment out my method of onBSM and create your own for flooding.
+// void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {}
 
 void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
     EV << "ONBSM" << endl;
@@ -118,16 +120,38 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
 
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
         EV << "DATAMSG: " << endl;
+        int reward = 10;
+        int source_id = temp_wsm->getSouId();
         int data_hop = temp_wsm->getHop();
         string nodeIds = temp_wsm->getNodesIds();
         int rsu_id = temp_wsm->getDesId();
+
+
+        connectivityStatus->setState("CONNECTED");
+        connectivityStatus->setAction("CONNECTION TO THIS NODE");
+        connectivityStatus->setTranscation("SEND ACK BACK");
+
+        if(data_hop == 1) {
+            connectivityStatus->setReward(reward);
+        } else if(data_hop == 2) {
+            connectivityStatus->setReward(reward - 2);
+        } else if(data_hop == 3) {
+            connectivityStatus->setReward(reward - 4);
+        } else if(data_hop == 4) {
+            connectivityStatus->setReward(reward - 6);
+        } else {
+            connectivityStatus->setReward(reward - 8);
+        }
+
+        // Status of nodes
+        conStatus.insert(pair<int, MDP*>(source_id, connectivityStatus));
 
 
         EV << "data_hop: " << data_hop << endl;
         EV << "RSU ID: " <<  rsu_id << endl;
 
         // pass the msg forward till the RSU_id is found
-        if(rsu_id != myId && sendMessage == false) {
+        if(sendMessage == false) {
 
             cancelEvent(start_processing);
             //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);

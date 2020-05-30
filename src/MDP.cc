@@ -63,3 +63,5 @@ void MDP::calculateReward() {
     reward += 1;
 }
 
+// Ege === Create your function here
+

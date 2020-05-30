@@ -67,6 +67,8 @@ private:
 
        map<int, vector<int>> neighbours;
 
+       map<int, pair<string, MDP*>> conStatus;
+
        vector<int> rsu_ids;
        // Stores the node information of mdp state and updates accordingly
        //map<int, MDPinfo*> nodesTable;
