@@ -183,7 +183,8 @@ DataMsg::DataMsg(const char *name, short kind) : ::WaveShortMessage(name,kind)
 {
     this->senderDirection = 0;
     this->hop = 0;
-    this->nodeId = 0;
+    this->souId = 0;
+    this->desId = 0;
 }
 
 DataMsg::DataMsg(const DataMsg& other) : ::WaveShortMessage(other)
@@ -209,7 +210,11 @@ void DataMsg::copy(const DataMsg& other)
     this->senderDirection = other.senderDirection;
     this->nodesIds = other.nodesIds;
     this->hop = other.hop;
-    this->nodeId = other.nodeId;
+    this->souId = other.souId;
+    this->desId = other.desId;
+    this->nodeState = other.nodeState;
+    this->action = other.action;
+    this->transcation = other.transcation;
 }
 
 void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
@@ -219,7 +224,11 @@ void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->senderDirection);
     doParsimPacking(b,this->nodesIds);
     doParsimPacking(b,this->hop);
-    doParsimPacking(b,this->nodeId);
+    doParsimPacking(b,this->souId);
+    doParsimPacking(b,this->desId);
+    doParsimPacking(b,this->nodeState);
+    doParsimPacking(b,this->action);
+    doParsimPacking(b,this->transcation);
 }
 
 void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -229,7 +238,11 @@ void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->senderDirection);
     doParsimUnpacking(b,this->nodesIds);
     doParsimUnpacking(b,this->hop);
-    doParsimUnpacking(b,this->nodeId);
+    doParsimUnpacking(b,this->souId);
+    doParsimUnpacking(b,this->desId);
+    doParsimUnpacking(b,this->nodeState);
+    doParsimUnpacking(b,this->action);
+    doParsimUnpacking(b,this->transcation);
 }
 
 Coord& DataMsg::getMessageOriginPosition()
@@ -272,14 +285,54 @@ void DataMsg::setHop(int hop)
     this->hop = hop;
 }
 
-int DataMsg::getNodeId() const
+int DataMsg::getSouId() const
 {
-    return this->nodeId;
+    return this->souId;
 }
 
-void DataMsg::setNodeId(int nodeId)
+void DataMsg::setSouId(int souId)
 {
-    this->nodeId = nodeId;
+    this->souId = souId;
+}
+
+int DataMsg::getDesId() const
+{
+    return this->desId;
+}
+
+void DataMsg::setDesId(int desId)
+{
+    this->desId = desId;
+}
+
+const char * DataMsg::getNodeState() const
+{
+    return this->nodeState.c_str();
+}
+
+void DataMsg::setNodeState(const char * nodeState)
+{
+    this->nodeState = nodeState;
+}
+
+const char * DataMsg::getAction() const
+{
+    return this->action.c_str();
+}
+
+void DataMsg::setAction(const char * action)
+{
+    this->action = action;
+}
+
+const char * DataMsg::getTranscation() const
+{
+    return this->transcation.c_str();
+}
+
+void DataMsg::setTranscation(const char * transcation)
+{
+    this->transcation = transcation;
 }
 
 class DataMsgDescriptor : public omnetpp::cClassDescriptor
@@ -347,7 +400,7 @@ const char *DataMsgDescriptor::getProperty(const char *propertyname) const
 int DataMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 5+basedesc->getFieldCount() : 5;
+    return basedesc ? 9+basedesc->getFieldCount() : 9;
 }
 
 unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
@@ -364,8 +417,12 @@ unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *DataMsgDescriptor::getFieldName(int field) const
@@ -381,9 +438,13 @@ const char *DataMsgDescriptor::getFieldName(int field) const
         "senderDirection",
         "nodesIds",
         "hop",
-        "nodeId",
+        "souId",
+        "desId",
+        "nodeState",
+        "action",
+        "transcation",
     };
-    return (field>=0 && field<5) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<9) ? fieldNames[field] : nullptr;
 }
 
 int DataMsgDescriptor::findField(const char *fieldName) const
@@ -394,7 +455,11 @@ int DataMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
     if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
     if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodeId")==0) return base+4;
+    if (fieldName[0]=='s' && strcmp(fieldName, "souId")==0) return base+4;
+    if (fieldName[0]=='d' && strcmp(fieldName, "desId")==0) return base+5;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+6;
+    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+7;
+    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+8;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -412,8 +477,12 @@ const char *DataMsgDescriptor::getFieldTypeString(int field) const
         "string",
         "int",
         "int",
+        "int",
+        "string",
+        "string",
+        "string",
     };
-    return (field>=0 && field<5) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **DataMsgDescriptor::getFieldPropertyNames(int field) const
@@ -484,7 +553,11 @@ std::string DataMsgDescriptor::getFieldValueAsString(void *object, int field, in
         case 1: return double2string(pp->getSenderDirection());
         case 2: return oppstring2string(pp->getNodesIds());
         case 3: return long2string(pp->getHop());
-        case 4: return long2string(pp->getNodeId());
+        case 4: return long2string(pp->getSouId());
+        case 5: return long2string(pp->getDesId());
+        case 6: return oppstring2string(pp->getNodeState());
+        case 7: return oppstring2string(pp->getAction());
+        case 8: return oppstring2string(pp->getTranscation());
         default: return "";
     }
 }
@@ -502,7 +575,11 @@ bool DataMsgDescriptor::setFieldValueAsString(void *object, int field, int i, co
         case 1: pp->setSenderDirection(string2double(value)); return true;
         case 2: pp->setNodesIds((value)); return true;
         case 3: pp->setHop(string2long(value)); return true;
-        case 4: pp->setNodeId(string2long(value)); return true;
+        case 4: pp->setSouId(string2long(value)); return true;
+        case 5: pp->setDesId(string2long(value)); return true;
+        case 6: pp->setNodeState((value)); return true;
+        case 7: pp->setAction((value)); return true;
+        case 8: pp->setTranscation((value)); return true;
         default: return false;
     }
 }

@@ -37,7 +37,7 @@
  *     int DesID;
  *     int SrcID;
  *     bool AckMsg = false;
- * 
+ *     bool IsFlooding = true;
  *     // "message" info
  * }
  * </pre>
@@ -53,6 +53,7 @@ class BeaconMsg : public ::BasicSafetyMessage
     int DesID;
     int SrcID;
     bool AckMsg;
+    bool IsFlooding;
 
   private:
     void copy(const BeaconMsg& other);
@@ -88,6 +89,8 @@ class BeaconMsg : public ::BasicSafetyMessage
     virtual void setSrcID(int SrcID);
     virtual bool getAckMsg() const;
     virtual void setAckMsg(bool AckMsg);
+    virtual bool getIsFlooding() const;
+    virtual void setIsFlooding(bool IsFlooding);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const BeaconMsg& obj) {obj.parsimPack(b);}

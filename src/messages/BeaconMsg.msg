@@ -35,6 +35,6 @@ packet BeaconMsg extends BasicSafetyMessage {
     int DesID;
     int SrcID;
     bool AckMsg = false;
-    
+    bool IsFlooding = true;
     // "message" info
 }

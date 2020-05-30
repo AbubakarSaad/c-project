@@ -21,77 +21,48 @@ void RSU11p::initialize(int stage) {
     // Start the flooding after 10s and last for 10s = total of 20s
     BaseWaveApplLayer::initialize(stage);
 
-    string temp_id = "";
     if(stage == 0) {
         EV << "Init stage of RSU" << endl;
 
-        BeaconMsg* bsm = new BeaconMsg("Beacon");
-        populateWSM(bsm);
-        scheduleAt(simTime() + 15, bsm->dup());
+        start_flooding = new cMessage("Start_Flooding");
+        stop_flooding = new cMessage("Stop_Flooding");
+        ack_msg = new cMessage("Ack_Msg");
 
-        is_flooded = false;
+        // Retrieving information from omnetpp.ini
+        request_interval_size = par("request_interval").doubleValue();
+        request_tolerance_size = par("request_tolerance").doubleValue();
 
-    }else if (stage == 1) {
-
-        EV << "Stage 1 in RSU" << endl;
-
-        if(is_flooded) {
-            // this is where I need to send out the main messages
-            // Every node as a neighbours table
-            // And node should bring the message back to rsu for verfiying if the should
-           // DataMsg* wsm = new DataMsg("WSM");
-            //populateWSM(wsm);
-           // scheduleAt(simTime() + 30, wsm->dup());
-        }
-
+        scheduleAt(simTime() + request_interval_size, start_flooding);
     }
-
 }
 
 void RSU11p::handleSelfMsg(cMessage* msg) {
-
-    if(BeaconMsg* bsm = dynamic_cast<BeaconMsg*> (msg)){
-        string temp_ids = "";
+    if(msg == start_flooding) {
         BeaconMsg* temp_bsm = new BeaconMsg("Beacon");
 
+        temp_bsm->setSenderAddress(myId);
+        temp_bsm->setSerial(4);
 
-        if(bsm->isSelfMessage()) {
-           if(simTime() >= 15 && simTime() <= 20) {
-               temp_bsm->setSenderAddress(myId);
-               //temp_bsm->setNodesIds(to_string(myId).c_str());
-               temp_bsm->setSerial(4);
+        temp_bsm->setHop(1);
+        temp_bsm->setRsuID(myId);
+        temp_bsm->setIsFlooding(true);
+        populateWSM(temp_bsm);
+        sendDown(temp_bsm->dup());
 
-               temp_bsm->setHop(1);
-               temp_bsm->setRsuID(myId);
-               populateWSM(temp_bsm);
-               sendDown(temp_bsm->dup());
+        // schedule the "event" every x seconds
+        scheduleAt(simTime() + 40, start_flooding);
 
-               is_flooded = true;
-           }
-       }else if (simTime() > 20 && simTime() <= 35 ) {
+    } else if (msg == stop_flooding) {
 
-       }
 
-    } else {
+    }  else if (msg == ack_msg) {
+        cancelEvent(ack_msg);
+
+        DataMsg* ack = new DataMsg("ACK");
+
+
+    }else {
         BaseWaveApplLayer::handleSelfMsg(msg);
-    }
-
-
-    if(DataMsg* wsm = dynamic_cast<DataMsg*> (msg)) {
-
-        DataMsg* temp_wsm = new DataMsg("WSM");
-
-        if(wsm->isSelfMessage()) {
-            temp_wsm->setSenderAddress(myId);
-
-            temp_wsm->setSerial(4);
-            temp_wsm->setHop(1);
-
-            populateWSM(temp_wsm);
-            sendDown(temp_wsm->dup());
-
-            is_msged = true;
-        }
     }
 
 }
@@ -103,59 +74,65 @@ void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
         mac->changeServiceChannel(wsa->getTargetChannel());
     }
 }
-void RSU11p::onWSM(WaveShortMessage* wsm) {
-    EV << "RSUWSM" << endl;
 
-
-    // Recived
-
-
-
+void RSU11p::statusUpdate(int id) {
+    EV << "Print the ID: " << id << endl;
 }
+
 
 void RSU11p::onBSM(BasicSafetyMessage* bsm) {
     EV << "RSUBSM" << endl;
 
     if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
 
-        if(simTime() > 15 && simTime() < 20 && !is_flooded) {
+       EV << "Temp senderaddress: " << temp_bsm->getSenderAddress() << endl;
 
-           int source_id = temp_bsm->getSenderAddress();
-           int hop_end_count = temp_bsm->getSerial();
-           int hop_count = temp_bsm->getHop();
+       EV << "InsideIF" << endl;
+       int source_id = temp_bsm->getSenderAddress();
+       int hop_end_count = temp_bsm->getSerial();
+       int hop_count = temp_bsm->getHop();
 
-           neighbours.insert(pair<int, vector<int> > (hop_count, vector<int>()));
-           neighbours[hop_count].push_back(source_id);
-           neighbours[hop_count].push_back(hop_end_count);
-
-           // "Kinda" flood networks
-           temp_bsm->setSenderAddress(myId);
-
-           hop_end_count = hop_end_count - 1;
-           temp_bsm->setSerial(hop_end_count);
-
-           hop_count = hop_count + 1;
-           temp_bsm->setHop(hop_count);
-
-           populateWSM(bsm);
-           is_flooded = true;
-           scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
-
-       } else if (simTime() > 25 && simTime() < 40) {
-           // recvice the ACK here... And put it in the table
-
-           if(temp_bsm->getDesID() == myId) {
-               int srcID = temp_bsm->getSrcID();
-               string path = temp_bsm->getPath();
-               EV << "IN RSU CLASS " << srcID << " -- " << path << endl;
-               // srcID, path, type of communication (basically this could be MDP object)
-               // nodeStatus.insert(srcID, pair<path, "V2I">);
-           }
-       }
-
+       neighbours.insert(pair<int, vector<int> > (source_id, vector<int>()));
+       neighbours[source_id].push_back(hop_count);
+       neighbours[source_id].push_back(hop_end_count);
     }
+}
 
+void RSU11p::onWSM(WaveShortMessage* wsm) {
+    EV << "RSUWSM" << endl;
+    cancelEvent(start_flooding);
 
+    // if the data message finds is here. hit the event which will stop the data msg completely.
+    if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
+        // msg recieved
+        int temp_id = temp_wsm->getDesId();
+
+        EV << "des: " << temp_id << endl;
+
+        if(temp_id == myId) {
+            // store this in the rank table
+            int souId = temp_wsm->getSouId();
+            string hop_path = temp_wsm->getNodesIds();
+            int hop_count = temp_wsm->getHop();
+
+            // message has been recieved. Update the status for this node.
+            statusUpdate(souId);
+
+            // send the ack back
+            //scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_msg);
+            DataMsg* ack = new DataMsg("ACK");
+            ack->setSouId(myId);
+            ack->setDesId(souId);
+
+            // data
+            ack->setNodeState("CONNECTED");
+            ack->setAction("Connected to RSU");
+            ack->setTranscation("Back to Node");
+            populateWSM(ack);
+
+            sendDelayedDown(ack->dup(), 1 + uniform(0.01,0.2));
+        }
+    }
 }
 
 void RSU11p::finish() {
@@ -163,24 +140,15 @@ void RSU11p::finish() {
 
     EV << "When does this work? " << endl;
 
+    ofstream log;
+    ostringstream o;
 
-     ofstream log;
-     ostringstream o;
-
-     o << "./results/" << "-hop count-" << "-vector for source id and hop_end_count-" << endl;
-     log.open("./results/results.txt");
-     log << "-hop count-" << "-vector for source id and hop_end_count-" << endl;
-     log.close();
-
-
-    // Print the neighbour table
+    log.open("./results/results.txt");
+    log << "-hop count | vector for source id | hop_end_count-" << endl;
+    for(auto &key: neighbours) {
+     // pair<int, vector<int>> key(neighbour);
+        log << key.first << " | " << key.second[0] << " | " << key.second[1] << endl;
+    }
+    log.close();
 
 }
-
-
-
-
-
-
-
-

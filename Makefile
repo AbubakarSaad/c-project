@@ -31,6 +31,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
 OBJS = \
+    $O/src/MDP.o \
     $O/src/MyThesisApp.o \
     $O/src/RSU11p.o \
     $O/src/messages/Ack_m.o \

@@ -28,11 +28,19 @@
  * <pre>
  * packet DataMsg extends WaveShortMessage
  * {
+ *     // meta info
  *     Coord messageOriginPosition;
  *     double senderDirection;
  *     string nodesIds;
  *     int hop;
- *     int nodeId;
+ *     int souId;
+ *     int desId;
+ * 
+ *     // data info
+ *     string nodeState;
+ *     string action;
+ *     string transcation;
+ * 
  * }
  * </pre>
  */
@@ -43,7 +51,11 @@ class DataMsg : public ::WaveShortMessage
     double senderDirection;
     ::omnetpp::opp_string nodesIds;
     int hop;
-    int nodeId;
+    int souId;
+    int desId;
+    ::omnetpp::opp_string nodeState;
+    ::omnetpp::opp_string action;
+    ::omnetpp::opp_string transcation;
 
   private:
     void copy(const DataMsg& other);
@@ -71,8 +83,16 @@ class DataMsg : public ::WaveShortMessage
     virtual void setNodesIds(const char * nodesIds);
     virtual int getHop() const;
     virtual void setHop(int hop);
-    virtual int getNodeId() const;
-    virtual void setNodeId(int nodeId);
+    virtual int getSouId() const;
+    virtual void setSouId(int souId);
+    virtual int getDesId() const;
+    virtual void setDesId(int desId);
+    virtual const char * getNodeState() const;
+    virtual void setNodeState(const char * nodeState);
+    virtual const char * getAction() const;
+    virtual void setAction(const char * action);
+    virtual const char * getTranscation() const;
+    virtual void setTranscation(const char * transcation);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const DataMsg& obj) {obj.parsimPack(b);}

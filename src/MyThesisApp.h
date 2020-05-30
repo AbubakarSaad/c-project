@@ -21,6 +21,8 @@
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "src/messages/BeaconMsg_m.h"
 #include "src/messages/Ack_m.h"
+#include "src/messages/DataMsg_m.h"
+#include "src/MDP.h"
 #include <string.h>
 #include <string>
 #include <algorithm>
@@ -36,43 +38,6 @@ using namespace std;
 
 class MyThesisApp : public BaseWaveApplLayer {
 private:
-    /**
-     * Struct used for MDP of current node
-     */
-    struct MDPinfo {
-        string state_of_node;
-        string action; // Has to be enum
-        string transcation; // This will perform the action
-        int reward; // Needs to be calculated
-    };
-
-    /**
-     * State of the Nodes
-     */
-    enum StateOfNodes {
-        NOT_CONNECTED,
-        RSU,
-        NODE,
-        BOTH
-    };
-
-    /**
-     * Kind of actions and transcation
-     */
-    enum NodeActions {
-        CONNECTING_TO_RSU,
-        CONNECTING_TO_NODE,
-        CONNECTING_TO_BOTH,
-    };
-
-    /**
-     * transactions
-     */
-    enum NodeTransactions {
-        CONNECTED_TO_RSU,
-        CONNECTED_TO_NODE,
-        CONNECTED_TO_BOTH,
-    };
 
     string buildPaths(string path);
 
@@ -88,20 +53,26 @@ private:
        // meta info process
 
        // variables
-       bool is_flooded;
-       bool is_paths;
+       cMessage* start_flooding_node;
+       cMessage* stop_flooding_node;
+       cMessage* start_processing;
+       cMessage* start_process_data;
+
+
+       bool sendMessage;
+
        simtime_t interval_flood;
        int currentSubscribedServiceId;
        int RSU_id;
 
        map<int, vector<int>> neighbours;
 
-       MDPinfo* init_obj = new MDPinfo;
-
-
+       vector<int> rsu_ids;
        // Stores the node information of mdp state and updates accordingly
-       map<int, MDPinfo*> nodesTable;
+       //map<int, MDPinfo*> nodesTable;
 
+       // Store MDP
+       MDP* connectivityStatus;
 
        // functions
        virtual void onBSM(BasicSafetyMessage* bsm);
@@ -111,6 +82,7 @@ private:
 
        virtual void handleSelfMsg(cMessage* msg);
        virtual void handlePositionUpdate(cObject* obj);
+       virtual void finish();
 
 
        // "message" info process

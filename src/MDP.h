@@ -1,17 +1,26 @@
-/*
- * MDP.h
- *
- *  Created on: Jan 27, 2020
- *      Author: abu
- */
-class MDP {
-    struct MDPinfo {
-        string state_of_node;
-        string action; // Has to be enum
-        string transcation; // This will perform the action
-        int reward; // Needs to be calculated
-    };
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see http://www.gnu.org/licenses/.
+// 
 
+#ifndef SRC_MDP_H_
+#define SRC_MDP_H_
+
+#include <iostream>
+
+using namespace std;
+
+class MDP {
     /**
      * State of the Nodes
      */
@@ -23,7 +32,7 @@ class MDP {
     };
 
     /**
-     * Kind of actions and transcation
+     * Kind of actions and transaction
      */
     enum NodeActions {
         CONNECTING_TO_RSU,
@@ -41,22 +50,26 @@ class MDP {
     };
 
 
+    string state_of_node;
+    string action; // Has to be enum
+    string transcation; // This will perform the action
+    int reward; // Needs to be calculated
 public:
-    void initialize();
+    MDP(); // constructor for MDP
+    ~MDP();
+    string getState();
+    void setState(string state);
 
-    void getState();
-    void setState();
+    string getAction();
+    void setAction(string act);
 
-    void getAction();
-    void setAction();
+    string getTranscation();
+    void setTranscation(string trans);
 
-    void getTranscation();
-    void setTranscation();
+    int getReward();
+    void setReward(int result);
 
-    void getReward();
-    void setReward();
-
+    void calculateReward();
 };
 
-
-
+#endif /* SRC_MDP_H_ */

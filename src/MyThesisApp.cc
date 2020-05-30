@@ -14,6 +14,7 @@
 // 
 
 #include "MyThesisApp.h"
+#include <math.h>
 
 Define_Module(MyThesisApp);
 
@@ -25,14 +26,27 @@ void MyThesisApp::initialize(int stage)
     EV << "Initialize the stage1111?" << endl;
 
     if (stage == 0) {
-        init_obj->state_of_node = NOT_CONNECTED;
-        init_obj->action =  NOT_CONNECTED;
-        init_obj->transcation = NOT_CONNECTED;
-        init_obj->reward = 0;
+        interval_flood = simTime().dbl();
+        sendMessage = false;
 
-        is_flooded = false;
-        is_paths = false; // to build paths;
-        interval_flood = simTime();
+        start_flooding_node = new cMessage("flooding_nodes");
+        stop_flooding_node = new cMessage("stop_flooding");
+        start_processing = new cMessage("processing");
+        start_process_data = new cMessage("processing_data");
+
+
+        // connectivity status
+        connectivityStatus = new MDP();
+
+        connectivityStatus->setAction("NOACTION");
+        connectivityStatus->setState("NONE");
+        connectivityStatus->setTranscation("NONE");
+
+
+
+
+        scheduleAt(simTime() + 100, start_processing);
+
     }
 }
 
@@ -48,12 +62,6 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
 }
 
 string MyThesisApp::buildPaths(string path) {
-
-    // 1. store the paths to your neighbours (done)
-    // 2. Have RSU id (done)
-    // 3. Send it back to the RSU
-    // 4. RSU saves the path that is send back
-
     return "failed";
 }
 
@@ -63,78 +71,42 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
     // Nodes (Vehicle) ==== V2V or V2I commiuncation
     findHost()->getDisplayString().updateWith("r=16,yellow");
 
-    if(simTime() >= 15 && simTime() <= 20 && !is_flooded) {
-        EV << "15 and UP" << endl;
-        if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
-            int source_id = temp_bsm->getSenderAddress();
-            int hop_end_count = temp_bsm->getSerial();
-            int hop_count = temp_bsm->getHop();
-            RSU_id = temp_bsm->getRsuID();
-
-            neighbours.insert(pair<int, vector<int> > (hop_count, vector<int>()));
-            neighbours[hop_count].push_back(source_id);
-            neighbours[hop_count].push_back(hop_end_count);
+    if(BeaconMsg* temp_bsm = dynamic_cast<BeaconMsg*>(bsm)) {
+        int source_id = temp_bsm->getSenderAddress();
+        int hop_end_count = temp_bsm->getSerial();
+        int hop_count = temp_bsm->getHop();
+        int rsu_id = temp_bsm->getRsuID();
+        RSU_id = temp_bsm->getRsuID();
+        rsu_ids.push_back(rsu_id);
 
 
-            // "Kinda" flood networks
+        neighbours.insert(pair<int, vector<int> > (source_id, vector<int>()));
+        neighbours[source_id].push_back(hop_count);
+        neighbours[source_id].push_back(hop_end_count);
+        neighbours[source_id].push_back(rsu_id);
+
+
+        if(sendMessage == false){
+            //BeaconMsg *msg = new BeaconMsg("Floods_nodes");
             temp_bsm->setSenderAddress(myId);
+            temp_bsm->setSerial(4);
+            temp_bsm->setHop(4);
 
-            hop_end_count = hop_end_count - 1;
-            temp_bsm->setSerial(hop_end_count);
-
-            hop_count = hop_count + 1;
-            temp_bsm->setHop(hop_count);
-
-            if(temp_bsm->getAckMsg() == false) {
-                populateWSM(bsm);
-                is_flooded = true;
-                scheduleAt(simTime() + 1 + uniform(0.01,0.2), temp_bsm->dup());
+            if(rsu_ids.size() > 0) {
+                temp_bsm->setRsuID(rsu_ids[0]);
             }
 
+            sendMessage = true;
+            populateWSM(temp_bsm);
+            sendDelayedDown(temp_bsm->dup(), 1 + uniform(0.01,0.2));
         }
-    }
 
-    if(simTime() >= 25 && simTime() <= 35 && !is_paths) {
-        EV << "25 and up" << endl;
-        if(Ack* temp_ack = dynamic_cast<Ack*>(bsm)){
-            EV << "ON25" << endl;
-            EV << "build paths" << endl;
-            // Send it back to RSU
-            // This will also attach the path, if they don't have the correct path to the destination
-            int desID = RSU_id;
-            int srcID = myId;
-            string path = to_string(myId);
-
-            Ack* ack_bsm = new Ack("ACK");
-
-            ack_bsm->setDesID(desID);
-            ack_bsm->setSrcID(srcID);
-            ack_bsm->setPath(path.c_str());
-
-            is_paths = true;
-
-
-
-
-            if(ack_bsm->getDesID() != myId && temp_ack->getAckMsg() == true
-                    ) {
-
-                populateWSM(ack_bsm);
-                scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_bsm->dup());
-            // sendDelayedDown(ack_bsm->dup(), 1 + uniform(0.01,0.2));
-
-            } else if (temp_ack->getAckMsg()) {
-
-                string pre_path = temp_ack->getPath();
-                string path = pre_path + "-" + to_string(myId);
-
-
-                populateWSM(ack_bsm);
-                scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_bsm->dup());
-                // sendDelayedDown(ack_bsm->dup(), 1 + uniform(0.01,0.2));
-
-            }
-        }
+        EV << "neigbours_CARS" << "RSU_id: " << rsu_ids[0] << endl;
+        EV << "My id: " << myId << endl;
+        for(auto &key: neighbours) {
+             // pair<int, vector<int>> key(neighbour);
+             EV << key.first << " | " << key.second[0] << " | " << key.second[1] << " | " << key.second[2] << endl;
+         }
     }
 }
 
@@ -144,39 +116,56 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
 
+    if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
+        EV << "DATAMSG: " << endl;
+        int data_hop = temp_wsm->getHop();
+        string nodeIds = temp_wsm->getNodesIds();
+        int rsu_id = temp_wsm->getDesId();
 
 
-//    if (mobility->getRoadId()[0] != ':') traciVehicle->changeRoute(wsm->getWsmData(), 9999);
-    if(wsm->getSenderAddress() != myId) {
-//        WaveShortMessage* wsm1 = new WaveShortMessage();
+        EV << "data_hop: " << data_hop << endl;
+        EV << "RSU ID: " <<  rsu_id << endl;
 
-        wsm->setSenderAddress(myId);
-        wsm->setSerial(3);
-        scheduleAt(simTime() + 3 + uniform(0.01,0.2), wsm->dup());
+        // pass the msg forward till the RSU_id is found
+        if(rsu_id != myId && sendMessage == false) {
+
+            cancelEvent(start_processing);
+            //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
+            string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+            temp_wsm->setNodesIds(nodeIds_add.c_str());
+            temp_wsm->setHop(data_hop - 1);
+            //temp_wsm->setSouId(temp_wsm->getSouId());
+            populateWSM(temp_wsm);
+            sendMessage = true;
+            sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+        }
     }
 }
 
 
 void MyThesisApp::handleSelfMsg(cMessage* msg) {
+    if(msg == start_processing){
+        // send the data to the RSU
+        // Every car has RSU id
+        EV << "Start sending processing msg" << endl;
+        DataMsg* data_msg = new DataMsg("Data");
+        data_msg->setHop(4);
+        data_msg->setNodesIds(to_string(myId).c_str());
+        data_msg->setSouId(myId);
+        data_msg->setDesId(RSU_id);
 
-    EV << "Reward: " << init_obj->reward << endl;
-    if (BeaconMsg* bsm = dynamic_cast<BeaconMsg*>(msg)) {
-        //send this message on the service channel until the counter is 3 or higher.
-        //this code only runs when channel switching is enabled
-        if(bsm->getAckMsg() == false) {
-            if(bsm->isSelfMessage()) {
-                sendDelayedDown(bsm->dup(), 1 + uniform(0.01,0.2));
-            }
-        }
+        EV << "RSU_id_WSM: " << RSU_id <<endl;
+        //if(rsu_ids.size()) {
 
-    }else if(Ack* ack = dynamic_cast<Ack*>(msg)) {
-        if(ack->getAckMsg()) {
-            if(ack->isSelfMessage()) {
-                sendDelayedDown(ack->dup(), 1 + uniform(0.01, 0.2));
-            }
-        }
-    }
-    else {
+        //}
+
+        populateWSM(data_msg);
+        sendDelayedDown(data_msg->dup(), 1 + uniform(0.01,0.2));
+    } else if (msg == start_process_data) {
+        EV << "start processing after data is sending" << endl;
+
+
+    }else {
         BaseWaveApplLayer::handleSelfMsg(msg);
     }
 }
@@ -186,26 +175,31 @@ void MyThesisApp::handlePositionUpdate(cObject* obj) {
     BaseWaveApplLayer::handlePositionUpdate(obj);
 
     EV << "Position Update " << endl;
-    // Maybe don't use ack, do a boolean in beacon that acts as a ack...
+    EV << "simTime: " << simTime() << endl;
 
+    double sim_time = simTime().dbl();
+    if(fmod(sim_time, 20) == 0 && sendMessage == false){
+        //m = MDP();
 
-
-
-    // Run this after every 20s interval
-    // 20s simTime(); flood the network
-    // else just wait
-    if (simTime() < 50) {
-       // if (sentMessage == false) {
-        findHost()->getDisplayString().updateWith("r=16,red");
-        BeaconMsg* wsm = new BeaconMsg();
-    }
-
-    if(simTime() > 50) {
-        EV << "Stopping the flooding" << endl;
     }
 }
 
+void MyThesisApp::finish() {
+    BaseWaveApplLayer::finish();
 
+    EV << "When does this work? " << endl;
+
+     ofstream log;
+     ostringstream o;
+
+     log.open("./results/node_results.txt");
+     log << "-hop count | vector for source id | hop_end_count-" << endl;
+     for(auto &key: neighbours) {
+         // pair<int, vector<int>> key(neighbour);
+         log << key.first << " | " << key.second[0] << " | " << key.second[1] << endl;
+     }
+     log.close();
+}
 
 
 

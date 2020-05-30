@@ -25,9 +25,18 @@ class noncobject Coord;
 class WaveShortMessage;
 
 packet DataMsg extends WaveShortMessage {
+    
+    // meta info
     Coord messageOriginPosition;
     double senderDirection;
     string nodesIds;
     int hop;
-    int nodeId;
+    int souId;
+    int desId;
+    
+    // data info
+    string nodeState;
+    string action;
+    string transcation;
+    
 }	

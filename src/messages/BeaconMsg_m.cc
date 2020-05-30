@@ -187,6 +187,7 @@ BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,k
     this->DesID = 0;
     this->SrcID = 0;
     this->AckMsg = false;
+    this->IsFlooding = true;
 }
 
 BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
@@ -216,6 +217,7 @@ void BeaconMsg::copy(const BeaconMsg& other)
     this->DesID = other.DesID;
     this->SrcID = other.SrcID;
     this->AckMsg = other.AckMsg;
+    this->IsFlooding = other.IsFlooding;
 }
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
@@ -229,6 +231,7 @@ void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->DesID);
     doParsimPacking(b,this->SrcID);
     doParsimPacking(b,this->AckMsg);
+    doParsimPacking(b,this->IsFlooding);
 }
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -242,6 +245,7 @@ void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->DesID);
     doParsimUnpacking(b,this->SrcID);
     doParsimUnpacking(b,this->AckMsg);
+    doParsimUnpacking(b,this->IsFlooding);
 }
 
 Coord& BeaconMsg::getMessageOriginPosition()
@@ -324,6 +328,16 @@ void BeaconMsg::setAckMsg(bool AckMsg)
     this->AckMsg = AckMsg;
 }
 
+bool BeaconMsg::getIsFlooding() const
+{
+    return this->IsFlooding;
+}
+
+void BeaconMsg::setIsFlooding(bool IsFlooding)
+{
+    this->IsFlooding = IsFlooding;
+}
+
 class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
 {
   private:
@@ -389,7 +403,7 @@ const char *BeaconMsgDescriptor::getProperty(const char *propertyname) const
 int BeaconMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 8+basedesc->getFieldCount() : 8;
+    return basedesc ? 9+basedesc->getFieldCount() : 9;
 }
 
 unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
@@ -409,8 +423,9 @@ unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconMsgDescriptor::getFieldName(int field) const
@@ -430,8 +445,9 @@ const char *BeaconMsgDescriptor::getFieldName(int field) const
         "DesID",
         "SrcID",
         "AckMsg",
+        "IsFlooding",
     };
-    return (field>=0 && field<8) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<9) ? fieldNames[field] : nullptr;
 }
 
 int BeaconMsgDescriptor::findField(const char *fieldName) const
@@ -446,6 +462,7 @@ int BeaconMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='D' && strcmp(fieldName, "DesID")==0) return base+5;
     if (fieldName[0]=='S' && strcmp(fieldName, "SrcID")==0) return base+6;
     if (fieldName[0]=='A' && strcmp(fieldName, "AckMsg")==0) return base+7;
+    if (fieldName[0]=='I' && strcmp(fieldName, "IsFlooding")==0) return base+8;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -466,8 +483,9 @@ const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
         "int",
         "int",
         "bool",
+        "bool",
     };
-    return (field>=0 && field<8) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
@@ -542,6 +560,7 @@ std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, 
         case 5: return long2string(pp->getDesID());
         case 6: return long2string(pp->getSrcID());
         case 7: return bool2string(pp->getAckMsg());
+        case 8: return bool2string(pp->getIsFlooding());
         default: return "";
     }
 }
@@ -563,6 +582,7 @@ bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, 
         case 5: pp->setDesID(string2long(value)); return true;
         case 6: pp->setSrcID(string2long(value)); return true;
         case 7: pp->setAckMsg(string2bool(value)); return true;
+        case 8: pp->setIsFlooding(string2bool(value)); return true;
         default: return false;
     }
 }
