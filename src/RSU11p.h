@@ -36,6 +36,8 @@ private:
         // rank status
         map<int, pair<string, MDP*>> conStatus;
 
+        double trans_probabilties[5][5] = {{0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
+
         cMessage* start_flooding;
         cMessage* stop_flooding;
         cMessage* ack_msg;

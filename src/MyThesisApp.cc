@@ -60,6 +60,11 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
     }
 }
 
+
+void MyThesisApp::printMaps(map<K, V> const &m) {
+
+}
+
 string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
@@ -143,8 +148,10 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
             connectivityStatus->setReward(reward - 8);
         }
 
+        conStatus.insert(std::make_pair(source_id, connectivityStatus));
+
         // Status of nodes
-        conStatus.insert(pair<int, MDP*>(source_id, connectivityStatus));
+        //conStatus.insert(pair<int, MDP*>(source_id, connectivityStatus));
 
 
         EV << "data_hop: " << data_hop << endl;

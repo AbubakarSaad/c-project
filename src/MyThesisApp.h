@@ -67,7 +67,9 @@ private:
 
        map<int, vector<int>> neighbours;
 
-       map<int, pair<string, MDP*>> conStatus;
+       map<int, MDP*> conStatus;
+
+       double trans_probabilties[4][4] = {{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
 
        vector<int> rsu_ids;
        // Stores the node information of mdp state and updates accordingly
@@ -75,6 +77,10 @@ private:
 
        // Store MDP
        MDP* connectivityStatus;
+
+       // helper functions
+
+       void printMaps(map<K, V> const &m);
 
        // functions
        virtual void onBSM(BasicSafetyMessage* bsm);
