@@ -45,6 +45,10 @@ private:
         double request_interval_size;
         double request_tolerance_size;
 
+        // helper functions
+        void printMaps(map<int, vector<int>> const &m);
+        void printMaps(map<int, MDP*> const &m);
+
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);
         virtual void onBSM(BasicSafetyMessage* bsm);

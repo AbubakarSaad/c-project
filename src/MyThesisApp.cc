@@ -61,8 +61,17 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
 }
 
 
-void MyThesisApp::printMaps(map<K, V> const &m) {
+void MyThesisApp::printMaps(map<int, vector<int>> const &m) {
+    for(auto &key: m) {
+          EV << key.first << " | " << key.second[0] << " | " << key.second[1] << " | " << key.second[2] << endl;
+     }
+}
 
+
+void MyThesisApp::printMaps(map<int, MDP*> const &m) {
+    for(auto &key: m) {
+        EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
+    }
 }
 
 string MyThesisApp::buildPaths(string path) {
@@ -110,12 +119,11 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 
         EV << "neigbours_CARS" << "RSU_id: " << rsu_ids[0] << endl;
         EV << "My id: " << myId << endl;
-        for(auto &key: neighbours) {
-             // pair<int, vector<int>> key(neighbour);
-             EV << key.first << " | " << key.second[0] << " | " << key.second[1] << " | " << key.second[2] << endl;
-         }
+        printMaps(neighbours);
     }
 }
+
+
 
 
 void MyThesisApp::onWSM(WaveShortMessage* wsm) {
@@ -133,8 +141,8 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
 
 
         connectivityStatus->setState("CONNECTED");
-        connectivityStatus->setAction("CONNECTION TO THIS NODE");
-        connectivityStatus->setTranscation("SEND ACK BACK");
+        connectivityStatus->setAction("CONNECTED-NODE");
+        connectivityStatus->setTranscation("SEND-ACK-BACK");
 
         if(data_hop == 1) {
             connectivityStatus->setReward(reward);
@@ -148,10 +156,11 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
             connectivityStatus->setReward(reward - 8);
         }
 
-        conStatus.insert(std::make_pair(source_id, connectivityStatus));
 
         // Status of nodes
-        //conStatus.insert(pair<int, MDP*>(source_id, connectivityStatus));
+        conStatus.insert(std::make_pair(source_id, connectivityStatus));
+
+        printMaps(conStatus);
 
 
         EV << "data_hop: " << data_hop << endl;

@@ -36,6 +36,19 @@ void RSU11p::initialize(int stage) {
     }
 }
 
+void RSU11p::printMaps(map<int, vector<int>> const &m) {
+    for(auto &key: m) {
+          EV << key.first << " | " << key.second[0] << " | " << key.second[1] << " | " << key.second[2] << endl;
+     }
+}
+
+
+void RSU11p::printMaps(map<int, MDP*> const &m) {
+    for(auto &key: m) {
+        EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
+    }
+}
+
 void RSU11p::handleSelfMsg(cMessage* msg) {
     if(msg == start_flooding) {
         BeaconMsg* temp_bsm = new BeaconMsg("Beacon");
@@ -61,10 +74,7 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         DataMsg* ack = new DataMsg("ACK");
 
 
-    }else {
-        BaseWaveApplLayer::handleSelfMsg(msg);
     }
-
 }
 
 void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
@@ -95,6 +105,9 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
        neighbours.insert(pair<int, vector<int> > (source_id, vector<int>()));
        neighbours[source_id].push_back(hop_count);
        neighbours[source_id].push_back(hop_end_count);
+
+
+       printMaps(neighbours);
     }
 }
 
@@ -126,8 +139,8 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
 
             // data
             ack->setNodeState("CONNECTED");
-            ack->setAction("Connected to RSU");
-            ack->setTranscation("Back to Node");
+            ack->setAction("Connected-RSU");
+            ack->setTranscation("RSU-to-NODE");
             populateWSM(ack);
 
             sendDelayedDown(ack->dup(), 1 + uniform(0.01,0.2));

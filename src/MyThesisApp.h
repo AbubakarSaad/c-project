@@ -79,8 +79,8 @@ private:
        MDP* connectivityStatus;
 
        // helper functions
-
-       void printMaps(map<K, V> const &m);
+       void printMaps(map<int, vector<int>> const &m);
+       void printMaps(map<int, MDP*> const &m);
 
        // functions
        virtual void onBSM(BasicSafetyMessage* bsm);
