@@ -185,6 +185,7 @@ DataMsg::DataMsg(const char *name, short kind) : ::WaveShortMessage(name,kind)
     this->hop = 0;
     this->souId = 0;
     this->desId = 0;
+    this->ack = false;
 }
 
 DataMsg::DataMsg(const DataMsg& other) : ::WaveShortMessage(other)
@@ -212,6 +213,7 @@ void DataMsg::copy(const DataMsg& other)
     this->hop = other.hop;
     this->souId = other.souId;
     this->desId = other.desId;
+    this->ack = other.ack;
     this->nodeState = other.nodeState;
     this->action = other.action;
     this->transcation = other.transcation;
@@ -226,6 +228,7 @@ void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->hop);
     doParsimPacking(b,this->souId);
     doParsimPacking(b,this->desId);
+    doParsimPacking(b,this->ack);
     doParsimPacking(b,this->nodeState);
     doParsimPacking(b,this->action);
     doParsimPacking(b,this->transcation);
@@ -240,6 +243,7 @@ void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->hop);
     doParsimUnpacking(b,this->souId);
     doParsimUnpacking(b,this->desId);
+    doParsimUnpacking(b,this->ack);
     doParsimUnpacking(b,this->nodeState);
     doParsimUnpacking(b,this->action);
     doParsimUnpacking(b,this->transcation);
@@ -303,6 +307,16 @@ int DataMsg::getDesId() const
 void DataMsg::setDesId(int desId)
 {
     this->desId = desId;
+}
+
+bool DataMsg::getAck() const
+{
+    return this->ack;
+}
+
+void DataMsg::setAck(bool ack)
+{
+    this->ack = ack;
 }
 
 const char * DataMsg::getNodeState() const
@@ -400,7 +414,7 @@ const char *DataMsgDescriptor::getProperty(const char *propertyname) const
 int DataMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 9+basedesc->getFieldCount() : 9;
+    return basedesc ? 10+basedesc->getFieldCount() : 10;
 }
 
 unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
@@ -421,8 +435,9 @@ unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<10) ? fieldTypeFlags[field] : 0;
 }
 
 const char *DataMsgDescriptor::getFieldName(int field) const
@@ -440,11 +455,12 @@ const char *DataMsgDescriptor::getFieldName(int field) const
         "hop",
         "souId",
         "desId",
+        "ack",
         "nodeState",
         "action",
         "transcation",
     };
-    return (field>=0 && field<9) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<10) ? fieldNames[field] : nullptr;
 }
 
 int DataMsgDescriptor::findField(const char *fieldName) const
@@ -457,9 +473,10 @@ int DataMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
     if (fieldName[0]=='s' && strcmp(fieldName, "souId")==0) return base+4;
     if (fieldName[0]=='d' && strcmp(fieldName, "desId")==0) return base+5;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+6;
-    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+7;
-    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+8;
+    if (fieldName[0]=='a' && strcmp(fieldName, "ack")==0) return base+6;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+7;
+    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+8;
+    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+9;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -478,11 +495,12 @@ const char *DataMsgDescriptor::getFieldTypeString(int field) const
         "int",
         "int",
         "int",
+        "bool",
         "string",
         "string",
         "string",
     };
-    return (field>=0 && field<9) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<10) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **DataMsgDescriptor::getFieldPropertyNames(int field) const
@@ -555,9 +573,10 @@ std::string DataMsgDescriptor::getFieldValueAsString(void *object, int field, in
         case 3: return long2string(pp->getHop());
         case 4: return long2string(pp->getSouId());
         case 5: return long2string(pp->getDesId());
-        case 6: return oppstring2string(pp->getNodeState());
-        case 7: return oppstring2string(pp->getAction());
-        case 8: return oppstring2string(pp->getTranscation());
+        case 6: return bool2string(pp->getAck());
+        case 7: return oppstring2string(pp->getNodeState());
+        case 8: return oppstring2string(pp->getAction());
+        case 9: return oppstring2string(pp->getTranscation());
         default: return "";
     }
 }
@@ -577,9 +596,10 @@ bool DataMsgDescriptor::setFieldValueAsString(void *object, int field, int i, co
         case 3: pp->setHop(string2long(value)); return true;
         case 4: pp->setSouId(string2long(value)); return true;
         case 5: pp->setDesId(string2long(value)); return true;
-        case 6: pp->setNodeState((value)); return true;
-        case 7: pp->setAction((value)); return true;
-        case 8: pp->setTranscation((value)); return true;
+        case 6: pp->setAck(string2bool(value)); return true;
+        case 7: pp->setNodeState((value)); return true;
+        case 8: pp->setAction((value)); return true;
+        case 9: pp->setTranscation((value)); return true;
         default: return false;
     }
 }

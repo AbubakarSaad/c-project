@@ -113,7 +113,7 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
 
 void RSU11p::onWSM(WaveShortMessage* wsm) {
     EV << "RSUWSM" << endl;
-    cancelEvent(start_flooding);
+    // cancelEvent(start_flooding);
 
     // if the data message finds is here. hit the event which will stop the data msg completely.
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
@@ -136,6 +136,7 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
             DataMsg* ack = new DataMsg("ACK");
             ack->setSouId(myId);
             ack->setDesId(souId);
+            ack->setAck(true);
 
             // data
             ack->setNodeState("CONNECTED");

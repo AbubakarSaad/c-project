@@ -64,23 +64,23 @@ private:
        simtime_t interval_flood;
        int currentSubscribedServiceId;
        int RSU_id;
-
-       map<int, vector<int>> neighbours;
-
-       map<int, MDP*> conStatus;
-
-       double trans_probabilties[4][4] = {{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
-
        vector<int> rsu_ids;
-       // Stores the node information of mdp state and updates accordingly
-       //map<int, MDPinfo*> nodesTable;
+
+       // Internal map
+       map<int, string> nodes_ids;
+
 
        // Store MDP
+       // Model info
+       map<int, vector<int>> neighbours;
        MDP* connectivityStatus;
+       map<int, MDP*> conStatus;
+       double trans_probabilties[4][4] = {{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
 
        // helper functions
        void printMaps(map<int, vector<int>> const &m);
        void printMaps(map<int, MDP*> const &m);
+       void printMaps(map<int, string> const &m);
 
        // functions
        virtual void onBSM(BasicSafetyMessage* bsm);
