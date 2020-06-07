@@ -16,7 +16,6 @@
 //
 // TODO generated message class
 //
-
 cplusplus {{
 #include "veins/base/utils/Coord.h"
 #include "veins/modules/messages/BasicSafetyMessage_m.h"
@@ -25,16 +24,13 @@ cplusplus {{
 class BasicSafetyMessage;
 class noncobject Coord;
 
-packet BeaconMsg extends BasicSafetyMessage {
+packet Ack extends BasicSafetyMessage {
     // meta info
-    Coord messageOriginPosition;
-    double senderDirection;
     string Path;
     int hop;
     int RsuID;
     int DesID;
     int SrcID;
-    bool AckMsg = false;
-    bool IsFlooding = true;
-    // "message" info
+    bool AckMsg = true;
+    // message info
 }

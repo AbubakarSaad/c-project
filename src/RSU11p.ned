@@ -18,8 +18,12 @@ import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
 
 simple RSU11p extends BaseWaveApplLayer
 {
- 	
-   		
    		@class(RSU11p);
+   		
+   		
+   		double request_interval @unit("s") = default(15s);  // interval to start the request
+    	double request_tolerance @unit("s") = default(5s);  // tollerance interval to receive informations
+    	
+    	@display("i=block/app2");
     
 }

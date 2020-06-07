@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.5 from src/messages/BeaconMsg.msg.
+// Generated file, do not edit! Created by nedtool 5.5 from src/messages/Ack.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include <sstream>
-#include "BeaconMsg_m.h"
+#include "Ack_m.h"
 
 namespace omnetpp {
 
@@ -177,24 +177,27 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
     return out;
 }
 
-Register_Class(BeaconMsg)
+Register_Class(Ack)
 
-BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
+Ack::Ack(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
 {
-    this->senderDirection = 0;
     this->hop = 0;
+    this->RsuID = 0;
+    this->DesID = 0;
+    this->SrcID = 0;
+    this->AckMsg = true;
 }
 
-BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
+Ack::Ack(const Ack& other) : ::BasicSafetyMessage(other)
 {
     copy(other);
 }
 
-BeaconMsg::~BeaconMsg()
+Ack::~Ack()
 {
 }
 
-BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
+Ack& Ack::operator=(const Ack& other)
 {
     if (this==&other) return *this;
     ::BasicSafetyMessage::operator=(other);
@@ -202,79 +205,105 @@ BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
     return *this;
 }
 
-void BeaconMsg::copy(const BeaconMsg& other)
+void Ack::copy(const Ack& other)
 {
-    this->messageOriginPosition = other.messageOriginPosition;
-    this->senderDirection = other.senderDirection;
-    this->nodesIds = other.nodesIds;
+    this->Path = other.Path;
     this->hop = other.hop;
+    this->RsuID = other.RsuID;
+    this->DesID = other.DesID;
+    this->SrcID = other.SrcID;
+    this->AckMsg = other.AckMsg;
 }
 
-void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
+void Ack::parsimPack(omnetpp::cCommBuffer *b) const
 {
     ::BasicSafetyMessage::parsimPack(b);
-    doParsimPacking(b,this->messageOriginPosition);
-    doParsimPacking(b,this->senderDirection);
-    doParsimPacking(b,this->nodesIds);
+    doParsimPacking(b,this->Path);
     doParsimPacking(b,this->hop);
+    doParsimPacking(b,this->RsuID);
+    doParsimPacking(b,this->DesID);
+    doParsimPacking(b,this->SrcID);
+    doParsimPacking(b,this->AckMsg);
 }
 
-void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
+void Ack::parsimUnpack(omnetpp::cCommBuffer *b)
 {
     ::BasicSafetyMessage::parsimUnpack(b);
-    doParsimUnpacking(b,this->messageOriginPosition);
-    doParsimUnpacking(b,this->senderDirection);
-    doParsimUnpacking(b,this->nodesIds);
+    doParsimUnpacking(b,this->Path);
     doParsimUnpacking(b,this->hop);
+    doParsimUnpacking(b,this->RsuID);
+    doParsimUnpacking(b,this->DesID);
+    doParsimUnpacking(b,this->SrcID);
+    doParsimUnpacking(b,this->AckMsg);
 }
 
-Coord& BeaconMsg::getMessageOriginPosition()
+const char * Ack::getPath() const
 {
-    return this->messageOriginPosition;
+    return this->Path.c_str();
 }
 
-void BeaconMsg::setMessageOriginPosition(const Coord& messageOriginPosition)
+void Ack::setPath(const char * Path)
 {
-    this->messageOriginPosition = messageOriginPosition;
+    this->Path = Path;
 }
 
-double BeaconMsg::getSenderDirection() const
-{
-    return this->senderDirection;
-}
-
-void BeaconMsg::setSenderDirection(double senderDirection)
-{
-    this->senderDirection = senderDirection;
-}
-
-const char * BeaconMsg::getNodesIds() const
-{
-    return this->nodesIds.c_str();
-}
-
-void BeaconMsg::setNodesIds(const char * nodesIds)
-{
-    this->nodesIds = nodesIds;
-}
-
-int BeaconMsg::getHop() const
+int Ack::getHop() const
 {
     return this->hop;
 }
 
-void BeaconMsg::setHop(int hop)
+void Ack::setHop(int hop)
 {
     this->hop = hop;
 }
 
-class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
+int Ack::getRsuID() const
+{
+    return this->RsuID;
+}
+
+void Ack::setRsuID(int RsuID)
+{
+    this->RsuID = RsuID;
+}
+
+int Ack::getDesID() const
+{
+    return this->DesID;
+}
+
+void Ack::setDesID(int DesID)
+{
+    this->DesID = DesID;
+}
+
+int Ack::getSrcID() const
+{
+    return this->SrcID;
+}
+
+void Ack::setSrcID(int SrcID)
+{
+    this->SrcID = SrcID;
+}
+
+bool Ack::getAckMsg() const
+{
+    return this->AckMsg;
+}
+
+void Ack::setAckMsg(bool AckMsg)
+{
+    this->AckMsg = AckMsg;
+}
+
+class AckDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertynames;
   public:
-    BeaconMsgDescriptor();
-    virtual ~BeaconMsgDescriptor();
+    AckDescriptor();
+    virtual ~AckDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -296,24 +325,24 @@ class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
     virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
 };
 
-Register_ClassDescriptor(BeaconMsgDescriptor)
+Register_ClassDescriptor(AckDescriptor)
 
-BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("BeaconMsg", "BasicSafetyMessage")
+AckDescriptor::AckDescriptor() : omnetpp::cClassDescriptor("Ack", "BasicSafetyMessage")
 {
     propertynames = nullptr;
 }
 
-BeaconMsgDescriptor::~BeaconMsgDescriptor()
+AckDescriptor::~AckDescriptor()
 {
     delete[] propertynames;
 }
 
-bool BeaconMsgDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool AckDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<BeaconMsg *>(obj)!=nullptr;
+    return dynamic_cast<Ack *>(obj)!=nullptr;
 }
 
-const char **BeaconMsgDescriptor::getPropertyNames() const
+const char **AckDescriptor::getPropertyNames() const
 {
     if (!propertynames) {
         static const char *names[] = {  nullptr };
@@ -324,19 +353,19 @@ const char **BeaconMsgDescriptor::getPropertyNames() const
     return propertynames;
 }
 
-const char *BeaconMsgDescriptor::getProperty(const char *propertyname) const
+const char *AckDescriptor::getProperty(const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : nullptr;
 }
 
-int BeaconMsgDescriptor::getFieldCount() const
+int AckDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 4+basedesc->getFieldCount() : 4;
+    return basedesc ? 6+basedesc->getFieldCount() : 6;
 }
 
-unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
+unsigned int AckDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -345,15 +374,17 @@ unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
         field -= basedesc->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
-        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
 }
 
-const char *BeaconMsgDescriptor::getFieldName(int field) const
+const char *AckDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -362,26 +393,30 @@ const char *BeaconMsgDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "messageOriginPosition",
-        "senderDirection",
-        "nodesIds",
+        "Path",
         "hop",
+        "RsuID",
+        "DesID",
+        "SrcID",
+        "AckMsg",
     };
-    return (field>=0 && field<4) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<6) ? fieldNames[field] : nullptr;
 }
 
-int BeaconMsgDescriptor::findField(const char *fieldName) const
+int AckDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginPosition")==0) return base+0;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
+    if (fieldName[0]=='P' && strcmp(fieldName, "Path")==0) return base+0;
+    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+1;
+    if (fieldName[0]=='R' && strcmp(fieldName, "RsuID")==0) return base+2;
+    if (fieldName[0]=='D' && strcmp(fieldName, "DesID")==0) return base+3;
+    if (fieldName[0]=='S' && strcmp(fieldName, "SrcID")==0) return base+4;
+    if (fieldName[0]=='A' && strcmp(fieldName, "AckMsg")==0) return base+5;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
-const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
+const char *AckDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -390,15 +425,17 @@ const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "Coord",
-        "double",
         "string",
         "int",
+        "int",
+        "int",
+        "int",
+        "bool",
     };
-    return (field>=0 && field<4) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
+const char **AckDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -411,7 +448,7 @@ const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *BeaconMsgDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *AckDescriptor::getFieldProperty(int field, const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -424,7 +461,7 @@ const char *BeaconMsgDescriptor::getFieldProperty(int field, const char *propert
     }
 }
 
-int BeaconMsgDescriptor::getFieldArraySize(void *object, int field) const
+int AckDescriptor::getFieldArraySize(void *object, int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -432,13 +469,13 @@ int BeaconMsgDescriptor::getFieldArraySize(void *object, int field) const
             return basedesc->getFieldArraySize(object, field);
         field -= basedesc->getFieldCount();
     }
-    BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
+    Ack *pp = (Ack *)object; (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-const char *BeaconMsgDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+const char *AckDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -446,13 +483,13 @@ const char *BeaconMsgDescriptor::getFieldDynamicTypeString(void *object, int fie
             return basedesc->getFieldDynamicTypeString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
+    Ack *pp = (Ack *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string AckDescriptor::getFieldValueAsString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -460,17 +497,19 @@ std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, 
             return basedesc->getFieldValueAsString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
+    Ack *pp = (Ack *)object; (void)pp;
     switch (field) {
-        case 0: {std::stringstream out; out << pp->getMessageOriginPosition(); return out.str();}
-        case 1: return double2string(pp->getSenderDirection());
-        case 2: return oppstring2string(pp->getNodesIds());
-        case 3: return long2string(pp->getHop());
+        case 0: return oppstring2string(pp->getPath());
+        case 1: return long2string(pp->getHop());
+        case 2: return long2string(pp->getRsuID());
+        case 3: return long2string(pp->getDesID());
+        case 4: return long2string(pp->getSrcID());
+        case 5: return bool2string(pp->getAckMsg());
         default: return "";
     }
 }
 
-bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+bool AckDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -478,16 +517,19 @@ bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, 
             return basedesc->setFieldValueAsString(object,field,i,value);
         field -= basedesc->getFieldCount();
     }
-    BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
+    Ack *pp = (Ack *)object; (void)pp;
     switch (field) {
-        case 1: pp->setSenderDirection(string2double(value)); return true;
-        case 2: pp->setNodesIds((value)); return true;
-        case 3: pp->setHop(string2long(value)); return true;
+        case 0: pp->setPath((value)); return true;
+        case 1: pp->setHop(string2long(value)); return true;
+        case 2: pp->setRsuID(string2long(value)); return true;
+        case 3: pp->setDesID(string2long(value)); return true;
+        case 4: pp->setSrcID(string2long(value)); return true;
+        case 5: pp->setAckMsg(string2bool(value)); return true;
         default: return false;
     }
 }
 
-const char *BeaconMsgDescriptor::getFieldStructName(int field) const
+const char *AckDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -496,12 +538,11 @@ const char *BeaconMsgDescriptor::getFieldStructName(int field) const
         field -= basedesc->getFieldCount();
     }
     switch (field) {
-        case 0: return omnetpp::opp_typename(typeid(Coord));
         default: return nullptr;
     };
 }
 
-void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+void *AckDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -509,9 +550,8 @@ void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, i
             return basedesc->getFieldStructValuePointer(object, field, i);
         field -= basedesc->getFieldCount();
     }
-    BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
+    Ack *pp = (Ack *)object; (void)pp;
     switch (field) {
-        case 0: return (void *)(&pp->getMessageOriginPosition()); break;
         default: return nullptr;
     }
 }
