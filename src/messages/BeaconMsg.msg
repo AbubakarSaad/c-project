@@ -38,4 +38,3 @@ packet BeaconMsg extends BasicSafetyMessage {
     bool IsFlooding = true;
     // "message" info
 }
->>>>>>> windows
