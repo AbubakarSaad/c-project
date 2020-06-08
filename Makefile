@@ -36,15 +36,13 @@ OBJS = \
     $O/src/RSU11p.o \
     $O/src/messages/Ack_m.o \
     $O/src/messages/BeaconMsg_m.o \
-    $O/src/messages/DataMsg_m.o \
-    $O/src/messages/RSUMsg_m.o
+    $O/src/messages/DataMsg_m.o
 
 # Message files
 MSGFILES = \
     src/messages/Ack.msg \
     src/messages/BeaconMsg.msg \
-    src/messages/DataMsg.msg \
-    src/messages/RSUMsg.msg
+    src/messages/DataMsg.msg
 
 # SM files
 SMFILES =

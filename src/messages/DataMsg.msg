@@ -33,7 +33,7 @@ packet DataMsg extends WaveShortMessage {
     int hop;
     int souId;
     int desId;
-    
+    bool ack = false;
     // data info
     string nodeState;
     string action;
