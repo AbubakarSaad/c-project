@@ -13,8 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef SRC_RSU11P_H_
-#define SRC_RSU11P_H_
+#pragma once
 
 #include <fstream>
 #include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
@@ -58,8 +57,4 @@ private:
         virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage* msg);
         virtual void finish();
-
-
 };
-
-#endif /* SRC_RSU11P_H_ */

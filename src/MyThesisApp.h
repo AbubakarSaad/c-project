@@ -13,14 +13,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef SRC_MYTHESISAPP_H_
-#define SRC_MYTHESISAPP_H_
+#pragma once
+
 
 #include <omnetpp.h>
 #include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "src/messages/BeaconMsg_m.h"
-#include "src/messages/Ack_m.h"
 #include "src/messages/DataMsg_m.h"
 #include "src/MDP.h"
 #include <string.h>
@@ -31,7 +30,6 @@
 #include <stdio.h>
 #include <sstream>
 //#include "RSU11p.h"
-
 
 using namespace omnetpp;
 using namespace std;
@@ -95,5 +93,3 @@ private:
 
        // "message" info process
 };
-
-#endif /* SRC_MYTHESISAPP_H_ */

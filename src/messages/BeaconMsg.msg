@@ -19,13 +19,15 @@
 
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/BasicSafetyMessage_m.h"
+#include "veins/modules/messages/WaveShortMessage_m.h"
 }}
 
-class BasicSafetyMessage;
+namespace veins;
+
+class WaveShortMessage;
 class noncobject Coord;
 
-packet BeaconMsg extends BasicSafetyMessage {
+packet BeaconMsg extends WaveShortMessage {
     // meta info
     Coord messageOriginPosition;
     double senderDirection;

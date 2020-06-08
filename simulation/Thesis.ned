@@ -20,7 +20,8 @@ import org.car2x.veins.nodes.Scenario;
 
 network Thesis extends Scenario
 {
-   
+   	parameters:
+   	    int numVehicles = 10;
     submodules:
         rsu[1]: RSU {
             @display("p=300,140;i=veins/sign/yellowdiamond;is=vs");

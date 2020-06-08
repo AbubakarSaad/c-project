@@ -16,6 +16,7 @@
 #include "RSU11p.h"
 
 Define_Module(RSU11p);
+using namespace veins;
 
 void RSU11p::initialize(int stage) {
     // Start the flooding after 10s and last for 10s = total of 20s
@@ -32,6 +33,10 @@ void RSU11p::initialize(int stage) {
         request_interval_size = par("request_interval").doubleValue();
         request_tolerance_size = par("request_tolerance").doubleValue();
 
+
+    }else if (stage == 1) {
+
+        EV << "Stage 1 in RSU" << endl;
         scheduleAt(simTime() + request_interval_size, start_flooding);
     }
 }
@@ -67,7 +72,6 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
 
     } else if (msg == stop_flooding) {
 
-
     }  else if (msg == ack_msg) {
         cancelEvent(ack_msg);
 
@@ -77,11 +81,11 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
     }
 }
 
-void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
+void RSU11p::onWSA(DemoServiceAdvertisment* wsa) {
     //if this RSU receives a WSA for service 42, it will tune to the chan
     EV << "RSUWSA" << endl;
     if (wsa->getPsid() == 42) {
-        mac->changeServiceChannel(wsa->getTargetChannel());
+        mac->changeServiceChannel(static_cast<Channel>(wsa->getTargetChannel()));
     }
 }
 

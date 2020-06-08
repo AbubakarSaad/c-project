@@ -20,14 +20,24 @@ import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
 simple MyThesisApp extends BaseWaveApplLayer
 {
     parameters:
-//        @statistic[messagesTransmitted](record=sum);
-//        @statistic[messageDelay](record=sum);
-//        @statistic[messagesReceived](record=sum);
-//        @statistic[isInROI](record=sum);
-//        @statistic[direction](record=last);
         
         // Time interval to delete out-dated received beacons
-        double beaconEntryTTL @unit(s) = default(3s);
+//        double beaconEntryTTL @unit(s) = default(3s);
+//        
+//        // Broadcast Supression parameters
+//        int numberTimeSlots = default(4);
+//        double avgCommRange @unit(m) = default(500m);
+//        double estimatedOneHopDelay @unit(s) = default(60ms);
+//        double maxDelay @unit(s) = default(4ms);
+//        
+//        
+//        // Sender-based Broadcast Suppression Parameters
+//        double minDistance @unit(m) = default(0m);
+//        double maxDistance @unit(m) = default(500m);
+//        
+//        double maxGPSError @unit(m) = default(0m);
+//        
+//        double datarate @unit(bps);
         
         // Broadcast Supression parameters
         int numberTimeSlots = default(4);

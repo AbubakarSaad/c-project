@@ -18,6 +18,8 @@
 
 Define_Module(MyThesisApp);
 
+using namespace veins;
+
 
 void MyThesisApp::initialize(int stage)
 {
@@ -87,6 +89,7 @@ string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
 
+
 // Ryan === Comment out my method of onBSM and create your own for flooding.
 // void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {}
 
@@ -131,6 +134,7 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
         printMaps(neighbours);
     }
 }
+
 
 
 void MyThesisApp::onWSM(WaveShortMessage* wsm) {
@@ -217,20 +221,18 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
         EV << "start processing after data is sending" << endl;
     }else {
         BaseWaveApplLayer::handleSelfMsg(msg);
-    }
 }
-
 
 void MyThesisApp::handlePositionUpdate(cObject* obj) {
     BaseWaveApplLayer::handlePositionUpdate(obj);
 
-    EV << "Position Update " << endl;
-    EV << "simTime: " << simTime() << endl;
-
-    double sim_time = simTime().dbl();
-    if(fmod(sim_time, 20) == 0 && sendMessage == false){
-        //m = MDP()
-    }
+//    EV << "Position Update " << endl;
+//    EV << "simTime: " << simTime() << endl;
+//
+//    double sim_time = simTime().dbl();
+//    if(fmod(sim_time, 20) == 0 && sendMessage == false){
+//        //m = MDP()
+//    }
 }
 
 void MyThesisApp::finish() {
