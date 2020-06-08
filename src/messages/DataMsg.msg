@@ -21,8 +21,6 @@ cplusplus {{
 #include "veins/modules/messages/WaveShortMessage_m.h"
 }}
 
-namespace veins;
-
 class noncobject Coord;
 class WaveShortMessage;
 
@@ -35,7 +33,6 @@ packet DataMsg extends WaveShortMessage {
     int hop;
     int souId;
     int desId;
-    bool ack = false;
     
     // data info
     string nodeState;

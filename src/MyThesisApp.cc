@@ -18,8 +18,6 @@
 
 Define_Module(MyThesisApp);
 
-using namespace veins;
-
 
 void MyThesisApp::initialize(int stage)
 {
@@ -64,7 +62,6 @@ void MyThesisApp::onWSA(WaveServiceAdvertisment* wsa) {
 
 
 void MyThesisApp::printMaps(map<int, vector<int>> const &m) {
-    EV << "PrintMaps for Neighbours" << endl;
     for(auto &key: m) {
           EV << key.first << " | " << key.second[0] << " | " << key.second[1] << " | " << key.second[2] << endl;
      }
@@ -72,23 +69,14 @@ void MyThesisApp::printMaps(map<int, vector<int>> const &m) {
 
 
 void MyThesisApp::printMaps(map<int, MDP*> const &m) {
-    EV << "PrintMaps for MDP" << endl;
     for(auto &key: m) {
         EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
-    }
-}
-
-void MyThesisApp::printMaps(map<int, string> const &m) {
-    EV << "PrintMaps for Nodes Ids" << endl;
-    for(auto &key: m) {
-        EV << key.first << "|" << key.second.c_str() << endl;
     }
 }
 
 string MyThesisApp::buildPaths(string path) {
     return "failed";
 }
-
 
 // Ryan === Comment out my method of onBSM and create your own for flooding.
 // void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {}
@@ -117,7 +105,7 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
         if(sendMessage == false){
             //BeaconMsg *msg = new BeaconMsg("Floods_nodes");
             temp_bsm->setSenderAddress(myId);
-            temp_bsm->setSerial(3);
+            temp_bsm->setSerial(4);
             temp_bsm->setHop(4);
 
             if(rsu_ids.size() > 0) {
@@ -137,24 +125,20 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 
 
 
+
 void MyThesisApp::onWSM(WaveShortMessage* wsm) {
+
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
 
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
         EV << "DATAMSG: " << endl;
-
-        // getting msg from RSU
-        if(temp_wsm->getAck() == true) {
-
-        } else {
-            // Getting msg from other cars
-        }
         int reward = 10;
         int source_id = temp_wsm->getSouId();
         int data_hop = temp_wsm->getHop();
         string nodeIds = temp_wsm->getNodesIds();
         int rsu_id = temp_wsm->getDesId();
+
 
         connectivityStatus->setState("CONNECTED");
         connectivityStatus->setAction("CONNECTED-NODE");
@@ -172,14 +156,11 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
             connectivityStatus->setReward(reward - 8);
         }
 
+
         // Status of nodes
         conStatus.insert(std::make_pair(source_id, connectivityStatus));
 
         printMaps(conStatus);
-
-        nodes_ids.insert(std::make_pair(source_id, nodeIds));
-
-        printMaps(nodes_ids);
 
 
         EV << "data_hop: " << data_hop << endl;
@@ -214,25 +195,33 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
         data_msg->setDesId(RSU_id);
 
         EV << "RSU_id_WSM: " << RSU_id <<endl;
+        //if(rsu_ids.size()) {
+
+        //}
 
         populateWSM(data_msg);
         sendDelayedDown(data_msg->dup(), 1 + uniform(0.01,0.2));
     } else if (msg == start_process_data) {
         EV << "start processing after data is sending" << endl;
+
+
     }else {
         BaseWaveApplLayer::handleSelfMsg(msg);
+    }
 }
+
 
 void MyThesisApp::handlePositionUpdate(cObject* obj) {
     BaseWaveApplLayer::handlePositionUpdate(obj);
 
-//    EV << "Position Update " << endl;
-//    EV << "simTime: " << simTime() << endl;
-//
-//    double sim_time = simTime().dbl();
-//    if(fmod(sim_time, 20) == 0 && sendMessage == false){
-//        //m = MDP()
-//    }
+    EV << "Position Update " << endl;
+    EV << "simTime: " << simTime() << endl;
+
+    double sim_time = simTime().dbl();
+    if(fmod(sim_time, 20) == 0 && sendMessage == false){
+        //m = MDP();
+
+    }
 }
 
 void MyThesisApp::finish() {
@@ -251,8 +240,3 @@ void MyThesisApp::finish() {
      }
      log.close();
 }
-
-
-
-
-

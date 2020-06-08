@@ -148,7 +148,6 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
-namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -180,7 +179,7 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 
 Register_Class(BeaconMsg)
 
-BeaconMsg::BeaconMsg(const char *name, short kind) : ::veins::WaveShortMessage(name,kind)
+BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
 {
     this->senderDirection = 0;
     this->hop = 0;
@@ -191,7 +190,7 @@ BeaconMsg::BeaconMsg(const char *name, short kind) : ::veins::WaveShortMessage(n
     this->IsFlooding = true;
 }
 
-BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::veins::WaveShortMessage(other)
+BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
 {
     copy(other);
 }
@@ -203,7 +202,7 @@ BeaconMsg::~BeaconMsg()
 BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
 {
     if (this==&other) return *this;
-    ::veins::WaveShortMessage::operator=(other);
+    ::BasicSafetyMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -223,7 +222,7 @@ void BeaconMsg::copy(const BeaconMsg& other)
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::veins::WaveShortMessage::parsimPack(b);
+    ::BasicSafetyMessage::parsimPack(b);
     doParsimPacking(b,this->messageOriginPosition);
     doParsimPacking(b,this->senderDirection);
     doParsimPacking(b,this->Path);
@@ -237,7 +236,7 @@ void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::veins::WaveShortMessage::parsimUnpack(b);
+    ::BasicSafetyMessage::parsimUnpack(b);
     doParsimUnpacking(b,this->messageOriginPosition);
     doParsimUnpacking(b,this->senderDirection);
     doParsimUnpacking(b,this->Path);
@@ -369,7 +368,7 @@ class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
 
 Register_ClassDescriptor(BeaconMsgDescriptor)
 
-BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("veins::BeaconMsg", "veins::WaveShortMessage")
+BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("BeaconMsg", "BasicSafetyMessage")
 {
     propertynames = nullptr;
 }
@@ -617,5 +616,4 @@ void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, i
     }
 }
 
-} // namespace veins
 
