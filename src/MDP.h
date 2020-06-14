@@ -69,7 +69,7 @@ public:
     int getReward();
     void setReward(int result);
 
-    void calculateReward();
+    int calculateReward(int data_hop);
 };
 
 #endif /* SRC_MDP_H_ */

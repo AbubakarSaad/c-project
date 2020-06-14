@@ -58,9 +58,22 @@ void MDP::setReward(int result) {
     reward = result;
 }
 
-void MDP::calculateReward() {
+int MDP::calculateReward(int data_hop) {
     // calculate the reward here
-    reward += 1;
+    switch(data_hop) {
+        case 1:
+            return reward - 0;
+        case 2:
+            return reward - 2;
+        case 3:
+            return reward - 4;
+        case 4:
+            return reward - 6;
+        default:
+            return reward - 8;
+    }
+
+    return 0;
 }
 
 // Ege === Create your function here

@@ -28,6 +28,8 @@ void MyThesisApp::initialize(int stage)
     if (stage == 0) {
         interval_flood = simTime().dbl();
         sendMessage = false;
+        sendMessageData = false;
+        correctNodeMsg = false;
 
         start_flooding_node = new cMessage("flooding_nodes");
         stop_flooding_node = new cMessage("stop_flooding");
@@ -136,63 +138,96 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
 void MyThesisApp::onWSM(WaveShortMessage* wsm) {
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
+    cancelEvent(start_processing);
+
+    // Getting Msg from RSU
+    //  Thats going to be ACK_msg
+    // Getting Msg from Nodes
+    //  Pass it to the other nodes till it finds RSU and change the node status to be connected.
+    //  1. Pass to RSU == starts at node sending a msg, it goes to other nodes, and keeps going till it finds RSU to that node
+    //  2. Also, change the node status without sending the ACK
+
+    // ========================================
+
+    // Four Table
+    //  Counter/Fequrency
+        // counts the fequerncey of the clicks
+    //  Probablitity
+        // The probablitiy of the fequencey
+    //  Past Cycle Probability
+        // Keeps track of the Probablity till the past cycle
+    //  Smoothed Probablity
+        // Keeps the smooth probablity of the current cycle
 
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
         EV << "DATAMSG: " << endl;
-
-        // getting msg from RSU
-        if(temp_wsm->getAck() == true) {
-
-        } else {
-            // Getting msg from other cars
-        }
         int reward = 10;
         int source_id = temp_wsm->getSouId();
         int data_hop = temp_wsm->getHop();
         string nodeIds = temp_wsm->getNodesIds();
-        int rsu_id = temp_wsm->getDesId();
+        int des_id = temp_wsm->getDesId();
 
-        connectivityStatus->setState("CONNECTED");
-        connectivityStatus->setAction("CONNECTED-NODE");
-        connectivityStatus->setTranscation("SEND-ACK-BACK");
-
-        if(data_hop == 1) {
-            connectivityStatus->setReward(reward);
-        } else if(data_hop == 2) {
-            connectivityStatus->setReward(reward - 2);
-        } else if(data_hop == 3) {
-            connectivityStatus->setReward(reward - 4);
-        } else if(data_hop == 4) {
-            connectivityStatus->setReward(reward - 6);
-        } else {
-            connectivityStatus->setReward(reward - 8);
-        }
-
-        // Status of nodes
-        conStatus.insert(std::make_pair(source_id, connectivityStatus));
-
-        printMaps(conStatus);
-
-        nodes_ids.insert(std::make_pair(source_id, nodeIds));
-
-        printMaps(nodes_ids);
-
-
+        EV << "SOU ID: " << source_id << endl;
         EV << "data_hop: " << data_hop << endl;
-        EV << "RSU ID: " <<  rsu_id << endl;
+        EV << "DES ID: " <<  des_id << endl;
 
-        // pass the msg forward till the RSU_id is found
-        if(sendMessage == false) {
+        // getting msg from RSU
+        if(temp_wsm->getAck() == true) {
+            if(des_id == myId) {
+                EV << "Ack Msg area" << endl;
+                connectivityStatus->setState("CONNECTED");
+                connectivityStatus->setAction("CONNECTED-NODE");
+                connectivityStatus->setReward(10);
+                connectivityStatus->calculateReward(data_hop);
 
-            cancelEvent(start_processing);
-            //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
-            string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
-            temp_wsm->setNodesIds(nodeIds_add.c_str());
-            temp_wsm->setHop(data_hop - 1);
-            //temp_wsm->setSouId(temp_wsm->getSouId());
-            populateWSM(temp_wsm);
-            sendMessage = true;
-            sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                conStatus.insert(std::make_pair(source_id, connectivityStatus));
+                nodes_ids.insert(std::make_pair(source_id, nodeIds));
+
+                printMaps(conStatus);
+                printMaps(nodes_ids);
+                correctNodeMsg = true;
+            } else {
+                // carry out till it reaches the proper node "connectivity"
+                EV << "Replying to the correct node" << endl;
+                if(correctNodeMsg == false) {
+
+                    // cancelEvent(start_processing);
+                    //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
+                    string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+                    temp_wsm->setNodesIds(nodeIds_add.c_str());
+                    temp_wsm->setHop(data_hop - 1);
+                    //temp_wsm->setSouId(temp_wsm->getSouId());
+                    populateWSM(temp_wsm);
+
+                    sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                }
+            }
+        } else {
+            // Getting msg from other nodes
+            // des_id == rsu_id
+            EV << "Find RSU" << endl;
+            if(sendMessageData == false) {
+                // New message
+//                DataMsg* find_rsumsg = new DataMsg("F_R");
+                string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+//                find_rsumsg->setNodesIds(nodeIds_add.c_str());
+//                find_rsumsg->setHop(data_hop - 1);
+//                find_rsumsg->setDesId(RSU_id);
+//                find_rsumsg->setSouId(source_id);
+//                //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
+//
+                temp_wsm->setNodesIds(nodeIds_add.c_str());
+                temp_wsm->setHop(data_hop - 1);
+                temp_wsm->setDesId(RSU_id);
+                temp_wsm->setSouId(source_id);
+                temp_wsm->setSouId(temp_wsm->getSouId());
+                populateWSM(temp_wsm);
+
+                sendMessageData = true;
+                sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                // scheduleAt(simTime() + 1 + uniform(0.01,0.2), start_processing); This changes the values os
+
+            }
         }
     }
 }

@@ -32,6 +32,8 @@ void RSU11p::initialize(int stage) {
         request_interval_size = par("request_interval").doubleValue();
         request_tolerance_size = par("request_tolerance").doubleValue();
 
+
+
         scheduleAt(simTime() + request_interval_size, start_flooding);
     }
 }
@@ -48,6 +50,8 @@ void RSU11p::printMaps(map<int, MDP*> const &m) {
         EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
     }
 }
+
+
 
 void RSU11p::handleSelfMsg(cMessage* msg) {
     if(msg == start_flooding) {
@@ -69,11 +73,23 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
 
 
     }  else if (msg == ack_msg) {
-        cancelEvent(ack_msg);
-
         DataMsg* ack = new DataMsg("ACK");
 
+        int desId = search(); // returns the last id in the stack == LIFO
 
+        EV << "hanldeselfmsg desId: " << desId << endl;
+
+        ack->setSouId(myId);
+        ack->setDesId(desId);
+        ack->setAck(true);
+
+        // data
+        ack->setNodeState("CONNECTED");
+        ack->setAction("Connected-RSU");
+        ack->setTranscation("RSU-to-NODE");
+        populateWSM(ack);
+
+        sendDelayedDown(ack->dup(), 1 + uniform(0.01,0.2));
     }
 }
 
@@ -85,9 +101,7 @@ void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
     }
 }
 
-void RSU11p::statusUpdate(int id) {
-    EV << "Print the ID: " << id << endl;
-}
+
 
 
 void RSU11p::onBSM(BasicSafetyMessage* bsm) {
@@ -127,9 +141,32 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
             int souId = temp_wsm->getSouId();
             string hop_path = temp_wsm->getNodesIds();
             int hop_count = temp_wsm->getHop();
+            int reward = 10;
 
             // message has been recieved. Update the status for this node.
-            statusUpdate(souId);
+
+            connectivityStatus = new MDP();
+            connectivityStatus->setAction("NOACTION");
+            connectivityStatus->setState("NONE");
+            connectivityStatus->setTranscation("NONE");
+
+
+            if(hop_count == 1) {
+                connectivityStatus->setReward(reward);
+            } else if(hop_count == 2) {
+                connectivityStatus->setReward(reward - 2);
+            } else if(hop_count == 3) {
+                connectivityStatus->setReward(reward - 4);
+            } else if(hop_count == 4) {
+                connectivityStatus->setReward(reward - 6);
+            } else {
+                connectivityStatus->setReward(reward - 8);
+            }
+
+
+            conStatus.insert(std::make_pair(souId, connectivityStatus));
+
+            track_nodes.push(souId);
 
             // send the ack back
             //scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_msg);
@@ -164,5 +201,14 @@ void RSU11p::finish() {
         log << key.first << " | " << key.second[0] << " | " << key.second[1] << endl;
     }
     log.close();
+}
 
+
+int RSU11p::search() {
+    EV << "Stack here: " << endl;
+
+    int top_node = track_nodes.top();
+
+    EV << "stack at top" << top_node << endl;
+    return top_node;
 }

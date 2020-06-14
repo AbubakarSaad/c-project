@@ -59,7 +59,9 @@ private:
        cMessage* start_process_data;
 
 
-       bool sendMessage;
+       bool sendMessage; // beacon
+       bool sendMessageData; // data
+       bool correctNodeMsg; // Look for Correct Node
 
        simtime_t interval_flood;
        int currentSubscribedServiceId;

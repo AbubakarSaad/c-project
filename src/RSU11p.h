@@ -22,6 +22,7 @@
 #include "src/messages/DataMsg_m.h"
 #include "src/MDP.h"
 #include <iostream>
+#include <stack>
 
 using namespace std;
 
@@ -34,7 +35,9 @@ private:
         // srcID, path & status
         map<int, pair<string, string>> nodeStatus;
         // rank status
-        map<int, pair<string, MDP*>> conStatus;
+        map<int, MDP*> conStatus;
+        // track ids
+        stack<int> track_nodes;
 
         double trans_probabilties[5][5] = {{0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
 
@@ -45,6 +48,8 @@ private:
         double request_interval_size;
         double request_tolerance_size;
 
+        MDP* connectivityStatus;
+
         // helper functions
         void printMaps(map<int, vector<int>> const &m);
         void printMaps(map<int, MDP*> const &m);
@@ -52,7 +57,7 @@ private:
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);
         virtual void onBSM(BasicSafetyMessage* bsm);
-        void statusUpdate(int id);
+        int search(); // returns the last id
 
     public:
         virtual void initialize(int stage);
