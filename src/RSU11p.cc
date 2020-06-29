@@ -27,14 +27,17 @@ void RSU11p::initialize(int stage) {
         start_flooding = new cMessage("Start_Flooding");
         stop_flooding = new cMessage("Stop_Flooding");
         ack_msg = new cMessage("Ack_Msg");
+        finishing = new cMessage("FINISH");
 
         // Retrieving information from omnetpp.ini
         request_interval_size = par("request_interval").doubleValue();
         request_tolerance_size = par("request_tolerance").doubleValue();
+        request_ending = par("request_ending").doubleValue();
 
 
 
         scheduleAt(simTime() + request_interval_size, start_flooding);
+        scheduleAt(simTime() + request_ending, finishing);
     }
 }
 
@@ -47,7 +50,14 @@ void RSU11p::printMaps(map<int, vector<int>> const &m) {
 
 void RSU11p::printMaps(map<int, MDP*> const &m) {
     for(auto &key: m) {
-        EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
+        EV << key.first << "|" << endl;
+        //key.second->getAction() << "|" << key.second->getState()
+    }
+}
+
+void RSU11p::printMaps(vector<pair<int, MDP*>> const &m) {
+    for(auto &key: m) {
+        //EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
     }
 }
 
@@ -69,10 +79,7 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         // schedule the "event" every x seconds
         scheduleAt(simTime() + 40, start_flooding);
 
-    } else if (msg == stop_flooding) {
-
-
-    }  else if (msg == ack_msg) {
+    } else if (msg == ack_msg) {
         DataMsg* ack = new DataMsg("ACK");
 
         int desId = search(); // returns the last id in the stack == LIFO
@@ -90,6 +97,22 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         populateWSM(ack);
 
         sendDelayedDown(ack->dup(), 1 + uniform(0.01,0.2));
+    } else if (msg == finishing) {
+        cancelEvent(start_flooding);
+        cancelEvent(ack_msg);
+
+        DataMsg* finishing_ack = new DataMsg("FIN_ACK");
+
+        int desId = search();
+        track_nodes.pop();
+
+//        ack->setSouId(myId);
+//        ack->setDesId(desId);
+//        ack->setFinished(true);
+//
+//        populateWSM(ack);
+//
+//        sendDelayedDown(ack->dup(), 1 + uniform(0.01, 0.2));
     }
 }
 
@@ -100,9 +123,6 @@ void RSU11p::onWSA(WaveServiceAdvertisment* wsa) {
         mac->changeServiceChannel(wsa->getTargetChannel());
     }
 }
-
-
-
 
 void RSU11p::onBSM(BasicSafetyMessage* bsm) {
     EV << "RSUBSM" << endl;
@@ -135,8 +155,7 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
         int temp_id = temp_wsm->getDesId();
 
         EV << "des: " << temp_id << endl;
-
-        if(temp_id == myId) {
+        if(temp_id == myId && temp_wsm->getAckRsu() == true) {
             // store this in the rank table
             int souId = temp_wsm->getSouId();
             string hop_path = temp_wsm->getNodesIds();
@@ -144,44 +163,34 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
             int reward = 10;
 
             // message has been recieved. Update the status for this node.
-
             connectivityStatus = new MDP();
-            connectivityStatus->setAction("NOACTION");
-            connectivityStatus->setState("NONE");
-            connectivityStatus->setTranscation("NONE");
 
+            int state = connectivityStatus->getCurState();
 
-            if(hop_count == 1) {
-                connectivityStatus->setReward(reward);
-            } else if(hop_count == 2) {
-                connectivityStatus->setReward(reward - 2);
-            } else if(hop_count == 3) {
-                connectivityStatus->setReward(reward - 4);
-            } else if(hop_count == 4) {
-                connectivityStatus->setReward(reward - 6);
-            } else {
-                connectivityStatus->setReward(reward - 8);
-            }
+            EV << "State: " << state << endl;
 
+            // get the action it can perform
+            vector<string> getActions = connectivityStatus->actions(connectivityStatus->getCurState());
+
+            vector<tuple<int, double, int>> getProb = connectivityStatus->succProbReward(connectivityStatus->getCurState(), getActions[0]);
 
             conStatus.insert(std::make_pair(souId, connectivityStatus));
 
             track_nodes.push(souId);
 
-            // send the ack back
-            //scheduleAt(simTime() + 1 + uniform(0.01,0.2), ack_msg);
-            DataMsg* ack = new DataMsg("ACK");
-            ack->setSouId(myId);
-            ack->setDesId(souId);
-            ack->setAck(true);
+            //sortConStatus(conStatus);
 
-            // data
-            ack->setNodeState("CONNECTED");
-            ack->setAction("Connected-RSU");
-            ack->setTranscation("RSU-to-NODE");
-            populateWSM(ack);
+            printMaps(conStatus);
 
-            sendDelayedDown(ack->dup(), 1 + uniform(0.01,0.2));
+            EV << "SIZE OF ACTIONS" << getActions.size() << endl;
+
+            for(auto &act : getActions) {
+                EV << "Action: " << act << endl;
+            }
+
+            for(auto &key: getProb) {
+                EV << "State: " << get<0>(key) << " |Prob " << get<1>(key) << " |Reward " << get<2>(key) << endl;
+            }
         }
     }
 }
@@ -195,14 +204,24 @@ void RSU11p::finish() {
     ostringstream o;
 
     log.open("./results/results.txt");
-    log << "-hop count | vector for source id | hop_end_count-" << endl;
+    log << "-Node_id | hop_end_count | -" << endl;
     for(auto &key: neighbours) {
      // pair<int, vector<int>> key(neighbour);
         log << key.first << " | " << key.second[0] << " | " << key.second[1] << endl;
     }
     log.close();
-}
 
+
+    log.open("./results/results_MDP.txt");
+    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
+    log << "-Node_Id | ACTION | STATUS | REWARD -" << endl;
+    for(auto &key: resultedConStatus) {
+        log << key.first << "|" << endl;
+        // key.second->getAction() << "|" << key.second->getState() << "|" << key.second->getReward() <<
+    }
+    log.close();
+
+}
 
 int RSU11p::search() {
     EV << "Stack here: " << endl;
@@ -211,4 +230,23 @@ int RSU11p::search() {
 
     EV << "stack at top" << top_node << endl;
     return top_node;
+}
+
+// ranking table
+vector<pair<int, MDP*>> RSU11p::sortConStatus(map<int, MDP*> constatu) {
+    vector<pair<int, MDP*>> sortedConStatus;
+
+//    auto cmp = [](pair<int, MDP*> const &a, pair<int, MDP*> const &b) {
+//       return a.second->getReward() != b.second->getReward() ? a.second->getReward() < b.second->getReward() : b.second->getReward() < a.second->getReward();
+//    };
+//
+//
+//    map<int, MDP*> ::iterator it2;
+//    for(it2=constatu.begin(); it2!=constatu.end(); it2++) {
+//        sortedConStatus.push_back(make_pair(it2->first, it2->second));
+//    }
+//
+//    sort(sortedConStatus.begin(), sortedConStatus.end(), cmp);
+
+    return sortedConStatus;
 }

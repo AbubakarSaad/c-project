@@ -186,6 +186,8 @@ DataMsg::DataMsg(const char *name, short kind) : ::WaveShortMessage(name,kind)
     this->souId = 0;
     this->desId = 0;
     this->ack = false;
+    this->finished = false;
+    this->ackRsu = false;
 }
 
 DataMsg::DataMsg(const DataMsg& other) : ::WaveShortMessage(other)
@@ -214,6 +216,8 @@ void DataMsg::copy(const DataMsg& other)
     this->souId = other.souId;
     this->desId = other.desId;
     this->ack = other.ack;
+    this->finished = other.finished;
+    this->ackRsu = other.ackRsu;
     this->nodeState = other.nodeState;
     this->action = other.action;
     this->transcation = other.transcation;
@@ -229,6 +233,8 @@ void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->souId);
     doParsimPacking(b,this->desId);
     doParsimPacking(b,this->ack);
+    doParsimPacking(b,this->finished);
+    doParsimPacking(b,this->ackRsu);
     doParsimPacking(b,this->nodeState);
     doParsimPacking(b,this->action);
     doParsimPacking(b,this->transcation);
@@ -244,6 +250,8 @@ void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->souId);
     doParsimUnpacking(b,this->desId);
     doParsimUnpacking(b,this->ack);
+    doParsimUnpacking(b,this->finished);
+    doParsimUnpacking(b,this->ackRsu);
     doParsimUnpacking(b,this->nodeState);
     doParsimUnpacking(b,this->action);
     doParsimUnpacking(b,this->transcation);
@@ -317,6 +325,26 @@ bool DataMsg::getAck() const
 void DataMsg::setAck(bool ack)
 {
     this->ack = ack;
+}
+
+bool DataMsg::getFinished() const
+{
+    return this->finished;
+}
+
+void DataMsg::setFinished(bool finished)
+{
+    this->finished = finished;
+}
+
+bool DataMsg::getAckRsu() const
+{
+    return this->ackRsu;
+}
+
+void DataMsg::setAckRsu(bool ackRsu)
+{
+    this->ackRsu = ackRsu;
 }
 
 const char * DataMsg::getNodeState() const
@@ -414,7 +442,7 @@ const char *DataMsgDescriptor::getProperty(const char *propertyname) const
 int DataMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 10+basedesc->getFieldCount() : 10;
+    return basedesc ? 12+basedesc->getFieldCount() : 12;
 }
 
 unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
@@ -436,8 +464,10 @@ unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<10) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<12) ? fieldTypeFlags[field] : 0;
 }
 
 const char *DataMsgDescriptor::getFieldName(int field) const
@@ -456,11 +486,13 @@ const char *DataMsgDescriptor::getFieldName(int field) const
         "souId",
         "desId",
         "ack",
+        "finished",
+        "ackRsu",
         "nodeState",
         "action",
         "transcation",
     };
-    return (field>=0 && field<10) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<12) ? fieldNames[field] : nullptr;
 }
 
 int DataMsgDescriptor::findField(const char *fieldName) const
@@ -474,9 +506,11 @@ int DataMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='s' && strcmp(fieldName, "souId")==0) return base+4;
     if (fieldName[0]=='d' && strcmp(fieldName, "desId")==0) return base+5;
     if (fieldName[0]=='a' && strcmp(fieldName, "ack")==0) return base+6;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+7;
-    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+8;
-    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+9;
+    if (fieldName[0]=='f' && strcmp(fieldName, "finished")==0) return base+7;
+    if (fieldName[0]=='a' && strcmp(fieldName, "ackRsu")==0) return base+8;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+9;
+    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+10;
+    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+11;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -496,11 +530,13 @@ const char *DataMsgDescriptor::getFieldTypeString(int field) const
         "int",
         "int",
         "bool",
+        "bool",
+        "bool",
         "string",
         "string",
         "string",
     };
-    return (field>=0 && field<10) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<12) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **DataMsgDescriptor::getFieldPropertyNames(int field) const
@@ -574,9 +610,11 @@ std::string DataMsgDescriptor::getFieldValueAsString(void *object, int field, in
         case 4: return long2string(pp->getSouId());
         case 5: return long2string(pp->getDesId());
         case 6: return bool2string(pp->getAck());
-        case 7: return oppstring2string(pp->getNodeState());
-        case 8: return oppstring2string(pp->getAction());
-        case 9: return oppstring2string(pp->getTranscation());
+        case 7: return bool2string(pp->getFinished());
+        case 8: return bool2string(pp->getAckRsu());
+        case 9: return oppstring2string(pp->getNodeState());
+        case 10: return oppstring2string(pp->getAction());
+        case 11: return oppstring2string(pp->getTranscation());
         default: return "";
     }
 }
@@ -597,9 +635,11 @@ bool DataMsgDescriptor::setFieldValueAsString(void *object, int field, int i, co
         case 4: pp->setSouId(string2long(value)); return true;
         case 5: pp->setDesId(string2long(value)); return true;
         case 6: pp->setAck(string2bool(value)); return true;
-        case 7: pp->setNodeState((value)); return true;
-        case 8: pp->setAction((value)); return true;
-        case 9: pp->setTranscation((value)); return true;
+        case 7: pp->setFinished(string2bool(value)); return true;
+        case 8: pp->setAckRsu(string2bool(value)); return true;
+        case 9: pp->setNodeState((value)); return true;
+        case 10: pp->setAction((value)); return true;
+        case 11: pp->setTranscation((value)); return true;
         default: return false;
     }
 }

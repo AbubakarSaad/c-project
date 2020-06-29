@@ -34,6 +34,8 @@ packet DataMsg extends WaveShortMessage {
     int souId;
     int desId;
     bool ack = false;
+    bool finished = false;
+    bool ackRsu = false;
     
     // data info
     string nodeState;

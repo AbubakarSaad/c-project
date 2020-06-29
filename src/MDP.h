@@ -17,59 +17,57 @@
 #define SRC_MDP_H_
 
 #include <iostream>
+#include <stack>
+#include <algorithm>
+#include <map>
+#include <vector>
+#include <tuple>
 
 using namespace std;
 
 class MDP {
-    /**
-     * State of the Nodes
-     */
-    enum StateOfNodes {
-        NOT_CONNECTED,
-        RSU,
-        NODE,
-        BOTH
-    };
+    // mapping from action to probability transition matrix
+    map<int, vector<double>> actionTransitions;
 
     /**
-     * Kind of actions and transaction
+     *  where entry (i, j) is the reward associated with taking action j from state j
      */
-    enum NodeActions {
-        CONNECTING_TO_RSU,
-        CONNECTING_TO_NODE,
-        CONNECTING_TO_BOTH,
-    };
-
+    double actionRewards[2][2] = {{}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
     /**
      * transactions
      */
-    enum NodeTransactions {
-        CONNECTED_TO_RSU,
-        CONNECTED_TO_NODE,
-        CONNECTED_TO_BOTH,
-    };
+    double transitionProbab[2][2] = {{}};
+    // discount factor
+    double discount = 0.5;
+
+    // Total number of states in MDP
+    int numStates;
+
+    // Total number of actions in MDP
+    int numActions;
+
+    int state_of_node;
 
 
-    string state_of_node;
-    string action; // Has to be enum
-    string transcation; // This will perform the action
-    int reward; // Needs to be calculated
 public:
     MDP(); // constructor for MDP
     ~MDP();
-    string getState();
-    void setState(string state);
 
-    string getAction();
-    void setAction(string act);
+    // Current State
+    int getCurState();
 
-    string getTranscation();
-    void setTranscation(string trans);
+    // Start State
+    int startState();
 
-    int getReward();
-    void setReward(int result);
+    // End State
 
-    int calculateReward(int data_hop);
+    // return the list of actions
+    vector<string> actions(int state);
+
+    // return list of (newState, prob, reward) triples
+    // state = s, action = a, s'=newState
+    // prob = T(s, a, s'), reward= Reward(s, a, s')
+    vector<tuple<int, double, int>> succProbReward(int state, string action);
 };
 
 #endif /* SRC_MDP_H_ */

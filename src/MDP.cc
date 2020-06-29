@@ -16,64 +16,42 @@
 #include "MDP.h"
 
 MDP::MDP() {
-    state_of_node = NOT_CONNECTED;
-    action =  NOT_CONNECTED;
-    transcation = NOT_CONNECTED;
-    reward = 0;
+    state_of_node = 0;
 }
 
-MDP::~MDP() {
-
-}
-
-string MDP::getState() {
+int MDP::getCurState() {
     return state_of_node;
 }
 
-void MDP::setState(string state) {
+void MDP::setState(int state) {
     state_of_node = state;
 }
 
-string MDP::getAction() {
-    return action;
-}
+vector<string> MDP::actions(int state) {
+    vector<string> actions;
 
-void MDP::setAction(string act) {
-    action = act;
-}
 
-string MDP::getTranscation() {
-    return transcation;
-}
-
-void MDP::setTranscation(string trans) {
-    transcation = trans;
-}
-
-int MDP::getReward() {
-    return reward;
-}
-
-void MDP::setReward(int result) {
-    reward = result;
-}
-
-int MDP::calculateReward(int data_hop) {
-    // calculate the reward here
-    switch(data_hop) {
-        case 1:
-            return reward - 0;
-        case 2:
-            return reward - 2;
-        case 3:
-            return reward - 4;
-        case 4:
-            return reward - 6;
-        default:
-            return reward - 8;
+    if(state <= state_of_node){
+        actions.push_back("CONNECTED_TO_SELF");
+    }
+    if(state+1 <= state_of_node) {
+        actions.push_back("CONNECTED_TO_V");
+    }
+    if(state+2 <= state_of_node) {
+        actions.push_back("CONNECTED_TO_R");
     }
 
-    return 0;
+    return actions;
+}
+
+vector<tuple<int, double, int>> MDP::succProbReward(int state, string action) {
+    vector<tuple<int, double, int>> result;
+
+    if(action == "CONNECTED_TO_SELF") {
+        result.push_back(std::make_tuple(state+1, 1.0, -1));
+    }
+
+    return result;
 }
 
 // Ege === Create your function here
