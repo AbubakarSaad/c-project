@@ -55,9 +55,14 @@ private:
        cMessage* stop_flooding_node;
        cMessage* start_processing;
        cMessage* start_process_data;
+       cMessage* ack_to_rsu;
 
+       bool sendMessage; // beacon
+       bool sendMessageData; // data
+       bool correctNodeMsg; // Look for Correct Node
+       bool rsu_id_flag = false;
+       bool endMsg = false; // For node leaving the simulation
 
-       bool sendMessage;
 
        simtime_t interval_flood;
        int currentSubscribedServiceId;

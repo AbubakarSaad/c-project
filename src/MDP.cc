@@ -16,52 +16,66 @@
 #include "MDP.h"
 
 MDP::MDP() {
-    state_of_node = NOT_CONNECTED;
-    action =  NOT_CONNECTED;
-    transcation = NOT_CONNECTED;
-    reward = 0;
+    state_of_node = 0;
 }
 
-MDP::~MDP() {
-
-}
-
-string MDP::getState() {
+int MDP::getCurState() {
     return state_of_node;
 }
 
-void MDP::setState(string state) {
+// 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
+void MDP::setState(int state) {
     state_of_node = state;
 }
 
-string MDP::getAction() {
-    return action;
+void MDP::setHopCount(int hop) {
+    final_hop_count = hop;
 }
 
-void MDP::setAction(string act) {
-    action = act;
+bool MDP::isEndState() {
+    // Hop can only be 4
+    return final_hop_count == 4;
 }
 
-string MDP::getTranscation() {
-    return transcation;
+double MDP::getDiscount() {
+    return discount_factor;
 }
 
-void MDP::setTranscation(string trans) {
-    transcation = trans;
+vector<string> MDP::actions(int state) {
+    vector<string> actions;
+
+    if(state_of_node <= state){
+        actions.push_back("CONNECTED_TO_SELF");
+    }
+    if(state_of_node <= state+1) {
+        actions.push_back("CONNECTED_TO_V");
+    }
+    if(state_of_node <= state+2) {
+        actions.push_back("CONNECTED_TO_R");
+    }
+
+    return actions;
 }
 
-int MDP::getReward() {
-    return reward;
+vector<tuple<int, double, int>> MDP::succProbReward(int state, string action) {
+   // newState, prob, reward
+    vector<tuple<int, double, int>> result;
+
+    if(action == "CONNECTED_TO_SELF") {
+        result.push_back(std::make_tuple(state, 1.0, -1));
+    }else if(action == "CONNECTED_TO_V") {
+        result.push_back(std::make_tuple(state+1, 0.5, 1));
+        result.push_back(std::make_tuple(state, 0.5, 1));
+    }else if(action == "CONNECTED_TO_R") {
+        result.push_back(std::make_tuple(state+2, 0.5, 5));
+        //result.push_back(std::make_tuple(state, 0.5, 0));
+    }
+
+    return result;
 }
 
-void MDP::setReward(int result) {
-    reward = result;
-}
 
-void MDP::calculateReward() {
-    // calculate the reward here
-    reward += 1;
-}
+
 
 // Ege === Create your function here
 

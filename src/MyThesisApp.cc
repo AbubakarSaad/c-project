@@ -28,21 +28,18 @@ void MyThesisApp::initialize(int stage)
     if (stage == 0) {
         interval_flood = simTime().dbl();
         sendMessage = false;
+        sendMessageData = false;
+        correctNodeMsg = false;
 
         start_flooding_node = new cMessage("flooding_nodes");
         stop_flooding_node = new cMessage("stop_flooding");
         start_processing = new cMessage("processing");
         start_process_data = new cMessage("processing_data");
+        ack_to_rsu = new cMessage("ACKTO_RSU");
 
 
         // connectivity status
         connectivityStatus = new MDP();
-
-        connectivityStatus->setAction("NOACTION");
-        connectivityStatus->setState("NONE");
-        connectivityStatus->setTranscation("NONE");
-        connectivityStatus->setReward(0);
-
 
         scheduleAt(simTime() + 100, start_processing);
 
@@ -69,9 +66,7 @@ void MyThesisApp::printMaps(map<int, vector<int>> const &m) {
 
 
 void MyThesisApp::printMaps(map<int, MDP*> const &m) {
-    for(auto &key: m) {
-        EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
-    }
+    EV << "PrintMaps for MDP" << endl;
 }
 
 string MyThesisApp::buildPaths(string path) {
@@ -93,6 +88,7 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
         int hop_count = temp_bsm->getHop();
         int rsu_id = temp_bsm->getRsuID();
         RSU_id = temp_bsm->getRsuID();
+        rsu_id_flag = true;
         rsu_ids.push_back(rsu_id);
 
 
@@ -105,16 +101,24 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
         if(sendMessage == false){
             //BeaconMsg *msg = new BeaconMsg("Floods_nodes");
             temp_bsm->setSenderAddress(myId);
+<<<<<<< HEAD
             temp_bsm->setSerial(4);
             temp_bsm->setHop(4);
 
             if(rsu_ids.size() > 0) {
                 temp_bsm->setRsuID(rsu_ids[0]);
             }
+=======
+            temp_bsm->setSerial(3);
+            temp_bsm->setHop(hop_count + 1);
+            temp_bsm->setRsuID(RSU_id);
+>>>>>>> windows
 
             sendMessage = true;
             populateWSM(temp_bsm);
             sendDelayedDown(temp_bsm->dup(), 1 + uniform(0.01,0.2));
+
+            scheduleAt(simTime() + uniform(0.01,0.2), ack_to_rsu);
         }
 
         EV << "neigbours_CARS" << "RSU_id: " << rsu_ids[0] << endl;
@@ -130,9 +134,21 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
 
     EV << "ONWSM" << endl;
     findHost()->getDisplayString().updateWith("r=16,green");
+    cancelEvent(start_processing);
+
+    // Four Table
+    //  Counter/Fequrency
+        // counts the fequerncey of the clicks
+    //  Probablitity
+        // The probablitiy of the fequencey
+    //  Past Cycle Probability
+        // Keeps track of the Probablity till the past cycle
+    //  Smoothed Probablity
+        // Keeps the smooth probablity of the current cycle
 
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
         EV << "DATAMSG: " << endl;
+<<<<<<< HEAD
         int reward = 10;
         int source_id = temp_wsm->getSouId();
         int data_hop = temp_wsm->getHop();
@@ -162,22 +178,102 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
 
         printMaps(conStatus);
 
+=======
+        int reward = 0;
+        int source_id = temp_wsm->getSouId();
+        int data_hop = temp_wsm->getHop();
+        string nodeIds = temp_wsm->getNodesIds();
+        int des_id = temp_wsm->getDesId();
 
+        EV << "SOU ID: " << source_id << endl;
         EV << "data_hop: " << data_hop << endl;
-        EV << "RSU ID: " <<  rsu_id << endl;
+        EV << "DES ID: " <<  des_id << endl;
 
-        // pass the msg forward till the RSU_id is found
-        if(sendMessage == false) {
+        // getting msg from RSU
+        if(temp_wsm->getAck() == true) {
+            if(des_id == myId) {
+                EV << "Ack Msg area" << endl;
+//                connectivityStatus->setState("CONNECTED");
+//                connectivityStatus->setAction("CONNECTED-NODE");
+//                connectivityStatus->setReward(10);
+//                connectivityStatus->calculateReward(data_hop);
 
-            cancelEvent(start_processing);
-            //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
-            string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
-            temp_wsm->setNodesIds(nodeIds_add.c_str());
-            temp_wsm->setHop(data_hop - 1);
-            //temp_wsm->setSouId(temp_wsm->getSouId());
-            populateWSM(temp_wsm);
-            sendMessage = true;
-            sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                conStatus.insert(std::make_pair(source_id, connectivityStatus));
+                nodes_ids.insert(std::make_pair(source_id, nodeIds));
+
+                printMaps(conStatus);
+                printMaps(nodes_ids);
+
+                correctNodeMsg = true;
+                delete(temp_wsm);
+            } else {
+                // carry out till it reaches the proper node "connectivity"
+                EV << "Replying to the correct node" << endl;
+                if(correctNodeMsg == false) {
+
+                    // cancelEvent(start_processing);
+                    //scheduleAt(simTime() + 100 + uniform(0.01,0.2), start_process_data);
+                    string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+                    temp_wsm->setNodesIds(nodeIds_add.c_str());
+                    temp_wsm->setHop(data_hop - 1);
+                    //temp_wsm->setSouId(temp_wsm->getSouId());
+                    populateWSM(temp_wsm);
+
+
+                    correctNodeMsg = true;
+                    sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                }
+            }
+        } else if(temp_wsm->getEndMsg() == true) {
+            // myId
+            if(des_id == myId) {
+                EV << "REACHED THE DESINTION" << endl;
+            } else {
+                EV << "forwarding the msg" << endl;
+                if(endMsg == false) {
+                    string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+                    temp_wsm->setNodesIds(nodeIds_add.c_str());
+                    temp_wsm->setHop(data_hop - 1);
+
+                    populateWSM(temp_wsm);
+
+                    endMsg = true;
+                    sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+
+                }
+            }
+>>>>>>> windows
+
+            // else
+
+        } else if(temp_wsm->getAckRsu() == true) {
+
+            if(rsu_id_flag == true && sendMessageData == false) {
+                // forward the message
+                temp_wsm->setHop(temp_wsm->getHop() + 1);
+                if(temp_wsm->getHop() <= 4 && temp_wsm->getDesId() == RSU_id && sendMessageData == false) {
+                  EV << "MSG here" << endl;
+                  EV << "MSG: " << des_id  << ":" << source_id << endl;
+                  sendMessageData = false;
+                  sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+                } else {
+                  EV <<"We will delete or drop this message" << endl;
+                  sendMessageData = true;
+                }
+            }
+        }  else {
+            // Getting msg from other nodes
+            // des_id == rsu_id
+            EV << "Find RSU" << endl;
+//            if(sendMessageData == false && temp_wsm->getAckRsu() == false) {
+//                string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+//                temp_wsm->setNodesIds(nodeIds_add.c_str());
+//                populateWSM(temp_wsm);
+//
+//                sendMessageData = true;
+//                sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+//                // scheduleAt(simTime() + 1 + uniform(0.01,0.2), start_processing); This changes the values os
+//            }
         }
     }
 }
@@ -203,9 +299,25 @@ void MyThesisApp::handleSelfMsg(cMessage* msg) {
         sendDelayedDown(data_msg->dup(), 1 + uniform(0.01,0.2));
     } else if (msg == start_process_data) {
         EV << "start processing after data is sending" << endl;
+<<<<<<< HEAD
 
 
     }else {
+=======
+    } else if (msg == ack_to_rsu) {
+      EV << "ACK to RSU as soon as you receive the beacon msg" << endl;
+
+      DataMsg* ack_rsu = new DataMsg("ACK_RSU");
+
+      ack_rsu->setHop(1);
+      ack_rsu->setSouId(myId);
+      ack_rsu->setDesId(RSU_id);
+      ack_rsu->setAckRsu(true);
+
+      populateWSM(ack_rsu);
+      sendDown(ack_rsu->dup());
+    } else {
+>>>>>>> windows
         BaseWaveApplLayer::handleSelfMsg(msg);
     }
 }
@@ -228,6 +340,17 @@ void MyThesisApp::finish() {
     BaseWaveApplLayer::finish();
 
     EV << "When does this work? " << endl;
+
+    // Send the message to RSU if "this" is done
+    DataMsg* end_msg = new DataMsg("End");
+
+    end_msg->setHop(1);
+    end_msg->setSouId(myId);
+    end_msg->setDesId(RSU_id);
+    end_msg->setEndMsg(true);
+
+    populateWSM(end_msg);
+    sendDown(end_msg->dup());
 
      ofstream log;
      ostringstream o;
