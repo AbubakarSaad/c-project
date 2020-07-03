@@ -38,6 +38,8 @@ void RSU11p::initialize(int stage) {
 
         scheduleAt(simTime() + request_interval_size, start_flooding);
         scheduleAt(simTime() + request_ending, finishing);
+        //EV << "MAX TIME" <<  << endl;
+
     }
 }
 
@@ -101,10 +103,14 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         cancelEvent(start_flooding);
         cancelEvent(ack_msg);
 
+        EV << "RUNS AT 1500s" << endl;
+
         DataMsg* finishing_ack = new DataMsg("FIN_ACK");
 
         int desId = search();
         track_nodes.pop();
+
+
 
 //        ack->setSouId(myId);
 //        ack->setDesId(desId);
@@ -145,6 +151,76 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
     }
 }
 
+double RSU11p::Q(vector<tuple<int, double, int>> probs, vector<double> values, double discount) {
+    double sum;
+
+    for(auto &key : probs) {
+        sum += get<1>(key) * (get<2>(key) + discount * values[get<0>(key)]);
+    }
+    EV << "sum: " << sum << endl;
+
+    return sum;
+}
+
+double RSU11p::max_double_val(vector<double> max_val) {
+    double max_v = max_val[0];
+
+    for(auto &i : max_val) {
+        if(max_v < i) {
+            max_v = i;
+        }
+    }
+
+    return max_v;
+}
+
+// valueIter
+map<int, double> RSU11p::valueIter(map<int, MDP*> mdpMap) {
+    // initailize
+    vector<double> values;
+    map<int, double> reward_nodes;
+
+    for(auto &key: mdpMap) {
+        values.push_back(0);
+    }
+
+    // compute the new values (newVal) given the old values
+    while(true) {
+        vector<double> newVal;
+        for (auto &key: mdpMap) {
+            // For Each State
+            EV << "For Each State" << endl;
+            if(key.second->isEndState()) {
+                newVal.push_back(0);
+                reward_nodes.insert({key.first, 0.0});
+            } else {
+                vector<string> actions = key.second->actions(key.second->getCurState());
+                vector<double> sumQ;
+               for(auto &act: actions) {
+                   vector<tuple<int, double, int>> getProbs = key.second->succProbReward(key.second->getCurState(), act);
+                   double sum = Q(getProbs, values, key.second->getDiscount());
+
+                   sumQ.push_back(sum);
+                   EV << "For Each Action: Sum === " << sum << endl;
+               }
+
+               double max_val = max_double_val(sumQ);
+               EV << "MAX === " << max_val << endl;
+
+               newVal.push_back(max_val);
+
+               // Decides the best value of all the actions
+               reward_nodes.insert({key.first, max_val});
+            }
+            //if()
+        }
+
+        break;
+    }
+
+    return reward_nodes;
+}
+
 void RSU11p::onWSM(WaveShortMessage* wsm) {
     EV << "RSUWSM" << endl;
     // cancelEvent(start_flooding);
@@ -162,8 +238,12 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
             int hop_count = temp_wsm->getHop();
             int reward = 10;
 
+            EV << "PATH Taken: " << hop_path << endl;
+
             // message has been recieved. Update the status for this node.
             connectivityStatus = new MDP();
+            connectivityStatus->setState(0);
+            connectivityStatus->setHopCount(hop_count);
 
             int state = connectivityStatus->getCurState();
 
@@ -191,6 +271,15 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
             for(auto &key: getProb) {
                 EV << "State: " << get<0>(key) << " |Prob " << get<1>(key) << " |Reward " << get<2>(key) << endl;
             }
+
+            results = this->valueIter(conStatus);
+        }else if(temp_id == myId && temp_wsm->getEndMsg() == true) {
+            EV << "End MSG here..." << endl;
+
+            int node_id = temp_wsm->getSouId();
+
+            EV << "Sou Id: " << node_id << endl;
+            conStatus.erase(node_id);
         }
     }
 }
@@ -213,11 +302,10 @@ void RSU11p::finish() {
 
 
     log.open("./results/results_MDP.txt");
-    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
-    log << "-Node_Id | ACTION | STATUS | REWARD -" << endl;
-    for(auto &key: resultedConStatus) {
-        log << key.first << "|" << endl;
-        // key.second->getAction() << "|" << key.second->getState() << "|" << key.second->getReward() <<
+//    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
+    log << "-Node_Id | Value -" << endl;
+    for(auto &key: results) {
+        log << key.first << "|" << key.second << endl;
     }
     log.close();
 
@@ -250,3 +338,5 @@ vector<pair<int, MDP*>> RSU11p::sortConStatus(map<int, MDP*> constatu) {
 
     return sortedConStatus;
 }
+
+

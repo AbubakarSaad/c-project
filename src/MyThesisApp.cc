@@ -189,9 +189,24 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
                     sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
                 }
             }
-        } else if(temp_wsm->getFinished() == true) {
+        } else if(temp_wsm->getEndMsg() == true) {
             // myId
+            if(des_id == myId) {
+                EV << "REACHED THE DESINTION" << endl;
+            } else {
+                EV << "forwarding the msg" << endl;
+                if(endMsg == false) {
+                    string nodeIds_add = nodeIds + '-' + to_string(myId).c_str();
+                    temp_wsm->setNodesIds(nodeIds_add.c_str());
+                    temp_wsm->setHop(data_hop - 1);
 
+                    populateWSM(temp_wsm);
+
+                    endMsg = true;
+                    sendDelayedDown(temp_wsm->dup(), 1 + uniform(0.01,0.2));
+
+                }
+            }
 
             // else
 
@@ -279,6 +294,17 @@ void MyThesisApp::finish() {
     BaseWaveApplLayer::finish();
 
     EV << "When does this work? " << endl;
+
+    // Send the message to RSU if "this" is done
+    DataMsg* end_msg = new DataMsg("End");
+
+    end_msg->setHop(1);
+    end_msg->setSouId(myId);
+    end_msg->setDesId(RSU_id);
+    end_msg->setEndMsg(true);
+
+    populateWSM(end_msg);
+    sendDown(end_msg->dup());
 
      ofstream log;
      ostringstream o;

@@ -36,8 +36,8 @@
  *     int souId;
  *     int desId;
  *     bool ack = false;
- *     bool finished = false;
  *     bool ackRsu = false;
+ *     bool endMsg = false;
  * 
  *     // data info
  *     string nodeState;
@@ -57,8 +57,8 @@ class DataMsg : public ::WaveShortMessage
     int souId;
     int desId;
     bool ack;
-    bool finished;
     bool ackRsu;
+    bool endMsg;
     ::omnetpp::opp_string nodeState;
     ::omnetpp::opp_string action;
     ::omnetpp::opp_string transcation;
@@ -95,10 +95,10 @@ class DataMsg : public ::WaveShortMessage
     virtual void setDesId(int desId);
     virtual bool getAck() const;
     virtual void setAck(bool ack);
-    virtual bool getFinished() const;
-    virtual void setFinished(bool finished);
     virtual bool getAckRsu() const;
     virtual void setAckRsu(bool ackRsu);
+    virtual bool getEndMsg() const;
+    virtual void setEndMsg(bool endMsg);
     virtual const char * getNodeState() const;
     virtual void setNodeState(const char * nodeState);
     virtual const char * getAction() const;

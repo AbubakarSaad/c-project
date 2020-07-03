@@ -24,6 +24,7 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
+#include <cstdlib>
 
 using namespace std;
 
@@ -40,6 +41,9 @@ private:
         // track ids
         stack<int> track_nodes; // tracks the connected nodes
 
+        // value results in here
+        map<int, double> results;
+
         cMessage* start_flooding;
         cMessage* stop_flooding;
         cMessage* ack_msg;
@@ -55,12 +59,18 @@ private:
         void printMaps(map<int, vector<int>> const &m);
         void printMaps(map<int, MDP*> const &m);\
         void printMaps(vector<pair<int, MDP*>> const &m);
+        map<int, double> valueIter(map<int, MDP*> mdpMap);
 
         virtual void onWSM(WaveShortMessage* wsm);
         virtual void onWSA(WaveServiceAdvertisment* wsa);
         virtual void onBSM(BasicSafetyMessage* bsm);
         int search(); // returns the last id
         vector<pair<int, MDP*>> sortConStatus(map<int, MDP*> constatu);
+
+
+        double Q(vector<tuple<int, double, int>> probs, vector<double> values, double discount);
+
+        double max_double_val(vector<double> max_val);
 
     public:
         virtual void initialize(int stage);

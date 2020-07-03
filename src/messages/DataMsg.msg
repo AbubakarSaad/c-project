@@ -34,11 +34,11 @@ packet DataMsg extends WaveShortMessage {
     int souId;
     int desId;
     bool ack = false;
-    bool finished = false;
     bool ackRsu = false;
+    bool endMsg = false;
     
     // data info
-    string nodeState;
+    int nodeState;
     string action;
     string transcation;
     

@@ -38,7 +38,7 @@ class MDP {
      */
     double transitionProbab[2][2] = {{}};
     // discount factor
-    double discount = 0.5;
+    double discount_factor = 1.0;
 
     // Total number of states in MDP
     int numStates;
@@ -46,7 +46,11 @@ class MDP {
     // Total number of actions in MDP
     int numActions;
 
+    // state of the node
     int state_of_node;
+
+    // Final hop count
+    int final_hop_count;
 
 
 public:
@@ -59,7 +63,15 @@ public:
     // Start State
     int startState();
 
+    // set State
+    void setState(int state);
+
     // End State
+    void setHopCount(int hop);
+    bool isEndState();
+
+    // Discount factor
+    double getDiscount();
 
     // return the list of actions
     vector<string> actions(int state);
@@ -68,6 +80,12 @@ public:
     // state = s, action = a, s'=newState
     // prob = T(s, a, s'), reward= Reward(s, a, s')
     vector<tuple<int, double, int>> succProbReward(int state, string action);
+
+
+    // policy or assiging reward
+
+
+
 };
 
 #endif /* SRC_MDP_H_ */

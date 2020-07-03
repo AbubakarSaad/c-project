@@ -23,21 +23,34 @@ int MDP::getCurState() {
     return state_of_node;
 }
 
+// 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
 void MDP::setState(int state) {
     state_of_node = state;
+}
+
+void MDP::setHopCount(int hop) {
+    final_hop_count = hop;
+}
+
+bool MDP::isEndState() {
+    // Hop can only be 4
+    return final_hop_count == 4;
+}
+
+double MDP::getDiscount() {
+    return discount_factor;
 }
 
 vector<string> MDP::actions(int state) {
     vector<string> actions;
 
-
-    if(state <= state_of_node){
+    if(state_of_node <= state){
         actions.push_back("CONNECTED_TO_SELF");
     }
-    if(state+1 <= state_of_node) {
+    if(state_of_node <= state+1) {
         actions.push_back("CONNECTED_TO_V");
     }
-    if(state+2 <= state_of_node) {
+    if(state_of_node <= state+2) {
         actions.push_back("CONNECTED_TO_R");
     }
 
@@ -45,14 +58,24 @@ vector<string> MDP::actions(int state) {
 }
 
 vector<tuple<int, double, int>> MDP::succProbReward(int state, string action) {
+   // newState, prob, reward
     vector<tuple<int, double, int>> result;
 
     if(action == "CONNECTED_TO_SELF") {
-        result.push_back(std::make_tuple(state+1, 1.0, -1));
+        result.push_back(std::make_tuple(state, 1.0, -1));
+    }else if(action == "CONNECTED_TO_V") {
+        result.push_back(std::make_tuple(state+1, 0.5, 1));
+        result.push_back(std::make_tuple(state, 0.5, 1));
+    }else if(action == "CONNECTED_TO_R") {
+        result.push_back(std::make_tuple(state+2, 0.5, 5));
+        //result.push_back(std::make_tuple(state, 0.5, 0));
     }
 
     return result;
 }
+
+
+
 
 // Ege === Create your function here
 

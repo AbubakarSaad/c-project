@@ -63,6 +63,7 @@ private:
        bool sendMessageData; // data
        bool correctNodeMsg; // Look for Correct Node
        bool rsu_id_flag = false;
+       bool endMsg = false; // For node leaving the simulation
 
 
        simtime_t interval_flood;
