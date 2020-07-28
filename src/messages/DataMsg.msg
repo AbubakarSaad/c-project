@@ -19,6 +19,7 @@
 cplusplus {{
 #include "veins/base/utils/Coord.h"
 #include "veins/modules/messages/WaveShortMessage_m.h"
+
 }}
 
 class noncobject Coord;
@@ -39,7 +40,10 @@ packet DataMsg extends WaveShortMessage {
     
     // data info
     int nodeState;
+    int pervState;
     string action;
     string transcation;
+    bool mdp;
+    
     
 }	

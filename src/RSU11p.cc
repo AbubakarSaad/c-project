@@ -28,6 +28,7 @@ void RSU11p::initialize(int stage) {
         stop_flooding = new cMessage("Stop_Flooding");
         ack_msg = new cMessage("Ack_Msg");
         finishing = new cMessage("FINISH");
+        processing = new cMessage("MDP-Processing");
 
         // Retrieving information from omnetpp.ini
         request_interval_size = par("request_interval").doubleValue();
@@ -52,17 +53,51 @@ void RSU11p::printMaps(map<int, vector<int>> const &m) {
 
 void RSU11p::printMaps(map<int, MDP*> const &m) {
     for(auto &key: m) {
-        EV << key.first << "|" << endl;
+        EV << key.first << "|" << key.second->getVal() << endl;
         //key.second->getAction() << "|" << key.second->getState()
+    }
+}
+
+void RSU11p::printMaps(int arr[3][3]) {
+
+    int row = sizeof(*arr)/sizeof(*arr[0]);
+    int col = sizeof(arr[0])/sizeof(arr[0][0]);
+
+    //int row = total / col;
+
+    EV << "Row: " << row << " COL: " << col << endl;
+
+
+    for(int i=0; i<row; i++) {
+        for(int j=0; j<col; j++) {
+            EV << "element: " << feq_msg[i][j] << " ";
+        }
+        EV << endl;
+    }
+}
+
+void RSU11p::printMaps(double arr[3][3]) {
+    int row = sizeof(*arr)/sizeof(*arr[0]);
+    int col = sizeof(arr[0])/sizeof(arr[0][0]);
+
+    //int row = total / col;
+
+    EV << "Row: " << row << " COL: " << col << endl;
+
+
+    for(int i=0; i<row; i++) {
+        for(int j=0; j<col; j++) {
+            EV << "element: " << arr[i][j] << " ";
+        }
+        EV << endl;
     }
 }
 
 void RSU11p::printMaps(vector<pair<int, MDP*>> const &m) {
     for(auto &key: m) {
-        //EV << key.first << "|" << key.second->getAction() << "|" << key.second->getState() << endl;
+        EV << key.first << "|" << key.second->getVal() << endl;
     }
 }
-
 
 
 void RSU11p::handleSelfMsg(cMessage* msg) {
@@ -76,7 +111,8 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         temp_bsm->setRsuID(myId);
         temp_bsm->setIsFlooding(true);
         populateWSM(temp_bsm);
-        sendDown(temp_bsm->dup());
+        sendDelayedDown(temp_bsm->dup(), 1 + uniform(0.01,0.2));
+        cycles += 1;
 
         // schedule the "event" every x seconds
         scheduleAt(simTime() + 40, start_flooding);
@@ -93,7 +129,7 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         ack->setAck(true);
 
         // data
-        ack->setNodeState("CONNECTED");
+        ack->setNodeState(0);
         ack->setAction("Connected-RSU");
         ack->setTranscation("RSU-to-NODE");
         populateWSM(ack);
@@ -105,20 +141,30 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
 
         EV << "RUNS AT 1500s" << endl;
 
-        DataMsg* finishing_ack = new DataMsg("FIN_ACK");
+        // get the top 10 and bottom 10
+        // concentate them into a string and send that message
+        // if the id exist in the list, the vehicle replies
+        // if it doesn't exist, then 'somehow' check the vehicle in RSU of not replying: maybe the value becomes zero
 
-        int desId = search();
-        track_nodes.pop();
 
 
 
-//        ack->setSouId(myId);
-//        ack->setDesId(desId);
-//        ack->setFinished(true);
-//
-//        populateWSM(ack);
-//
-//        sendDelayedDown(ack->dup(), 1 + uniform(0.01, 0.2));
+
+
+
+
+
+
+    } else if(msg == processing) {
+
+        EV << "Do all the processing here" << endl;
+
+        // Call the value iteration algo here.....
+        this->valueIter(conStatus);
+
+        printMaps(conStatus);
+
+
     }
 }
 
@@ -151,15 +197,25 @@ void RSU11p::onBSM(BasicSafetyMessage* bsm) {
     }
 }
 
-double RSU11p::Q(vector<tuple<int, double, int>> probs, vector<double> values, double discount) {
+tuple<double, int> RSU11p::Q(vector<tuple<int, double, int>> probs, double value, double discount) {
     double sum;
+    int state;
+
+    // get<1>(key)
+    double pro = 0;
 
     for(auto &key : probs) {
-        sum += get<1>(key) * (get<2>(key) + discount * values[get<0>(key)]);
+
+        sum += get<1>(key) * (get<2>(key) + (1 * value));
+
+        state = get<0>(key);
     }
+
+    tuple<double, int> res (sum, state);
+
     EV << "sum: " << sum << endl;
 
-    return sum;
+    return res;
 }
 
 double RSU11p::max_double_val(vector<double> max_val) {
@@ -174,114 +230,417 @@ double RSU11p::max_double_val(vector<double> max_val) {
     return max_v;
 }
 
-// valueIter
-map<int, double> RSU11p::valueIter(map<int, MDP*> mdpMap) {
+tuple<double, int> RSU11p::valueIter(map<int, MDP*> conStatu) {
     // initailize
-    vector<double> values;
-    map<int, double> reward_nodes;
+    double value = 0;
 
-    for(auto &key: mdpMap) {
-        values.push_back(0);
-    }
+
+    double reward_value;
+
+    tuple<double, int> res_reward;
 
     // compute the new values (newVal) given the old values
     while(true) {
         vector<double> newVal;
-        for (auto &key: mdpMap) {
-            // For Each State
-            EV << "For Each State" << endl;
-            if(key.second->isEndState()) {
-                newVal.push_back(0);
-                reward_nodes.insert({key.first, 0.0});
-            } else {
-                vector<string> actions = key.second->actions(key.second->getCurState());
-                vector<double> sumQ;
-               for(auto &act: actions) {
-                   vector<tuple<int, double, int>> getProbs = key.second->succProbReward(key.second->getCurState(), act);
-                   double sum = Q(getProbs, values, key.second->getDiscount());
 
-                   sumQ.push_back(sum);
-                   EV << "For Each Action: Sum === " << sum << endl;
+        for(auto &o : conStatu) {
+            MDP* obj = o.second;
+
+//            if(obj->getVal() > 0) {
+//                value = obj->getVal();
+//            }
+
+
+            EV << "For Each State" << endl;
+            if(obj->isEndState()) {
+                newVal.push_back(0);
+                //reward_nodes.insert({key.first, 0.0});
+            } else {
+                vector<string> actions = obj->actions(obj->getCurState());
+                vector<double> sumQ;
+                vector<int> stateQ;
+               for(auto &act: actions) {
+                   // check if the Q returns the double
+                   // fixed probablity == 0.33 and check results differeaita
+                   // discount factor at 0.8
+                   // If the more hops away, apply by discount factor again. 10% reward decrease per hop
+                   // use the transition matrix
+                   vector<tuple<int, double, int>> getProbs = obj->succProbReward(obj->getCurState(), act, probablitiy_feq, obj->getPervState());
+                   tuple<double, int> sum = Q(getProbs, value, 0.001);
+
+                   EV << "SUM Q: " << get<0>(sum) << endl;
+
+                   sumQ.push_back(get<0>(sum));
+                   stateQ.push_back(get<1>(sum));
+                   EV << "For Each Action: Sum === " << get<0>(sum) << endl;
                }
 
                double max_val = max_double_val(sumQ);
                EV << "MAX === " << max_val << endl;
 
+               vector<double>::iterator it = find(sumQ.begin(), sumQ.end(), max_val);
+               int index;
+
+
+               if(it != sumQ.end()) {
+                   EV << "ELEMENT FOUND" << endl;
+                   index = distance(sumQ.begin(), it);
+                   EV << "INDEX " << index << endl;
+                   EV << "State: " << stateQ[index] << endl;
+               } else {
+                   EV << "ELEMENT NOT FOUND " << endl;
+                   index = -1;
+               }
+
                newVal.push_back(max_val);
 
                // Decides the best value of all the actions
-               reward_nodes.insert({key.first, max_val});
+               //reward_nodes.insert({key.first, max_val});
+               reward_value = max_val;
+
+               res_reward = make_tuple(reward_value, index);
+
+               obj->setPervState(obj->getCurState());
+               obj->setState(index);
+               obj->setVal(reward_value);
+
+
             }
-            //if()
         }
+        //if(value < reward_value) break;
 
         break;
     }
 
-    return reward_nodes;
+    return res_reward;
+}
+
+// valueIter map<int, double, int> map<int, MDP*> mdpMap
+//tuple<double, int> RSU11p::valueIter(MDP* obj) {
+//    // initailize
+//    double value = 0;
+//
+//    if(obj->getVal() > 0) {
+//        value = obj->getVal();
+//    }
+//    double reward_value;
+//
+//    tuple<double, int> res_reward;
+//
+//    // compute the new values (newVal) given the old values
+//    while(true) {
+//        vector<double> newVal;
+//
+//        EV << "For Each State" << endl;
+//        if(obj->isEndState()) {
+//            newVal.push_back(0);
+//            //reward_nodes.insert({key.first, 0.0});
+//        } else {
+//            vector<string> actions = obj->actions(obj->getCurState());
+//            vector<double> sumQ;
+//            vector<int> stateQ;
+//           for(auto &act: actions) {
+//               // check if the Q returns the double
+//               // fixed probablity == 0.33 and check results differeaita
+//               // discount factor at 0.8
+//               // If the more hops away, apply by discount factor again. 10% reward decrease per hop
+//               // use the transition matrix
+//               vector<tuple<int, double, int>> getProbs = obj->succProbReward(obj->getCurState(), act, probablitiy_feq, obj->getPervState());
+//               tuple<double, int> sum = Q(getProbs, value, 0.001);
+//
+//               EV << "SUM Q: " << get<0>(sum) << endl;
+//
+//               sumQ.push_back(get<0>(sum));
+//               stateQ.push_back(get<1>(sum));
+//               EV << "For Each Action: Sum === " << get<0>(sum) << endl;
+//           }
+//
+//           double max_val = max_double_val(sumQ);
+//           EV << "MAX === " << max_val << endl;
+//
+//           vector<double>::iterator it = find(sumQ.begin(), sumQ.end(), max_val);
+//           int index;
+//
+//
+//           if(it != sumQ.end()) {
+//               EV << "ELEMENT FOUND" << endl;
+//               index = distance(sumQ.begin(), it);
+//               EV << "INDEX " << index << endl;
+//               EV << "State: " << stateQ[index] << endl;
+//           } else {
+//               EV << "ELEMENT NOT FOUND " << endl;
+//               index = -1;
+//           }
+//
+//           newVal.push_back(max_val);
+//
+//           // Decides the best value of all the actions
+//           //reward_nodes.insert({key.first, max_val});
+//           reward_value = max_val;
+//
+//           res_reward = make_tuple(reward_value, index);
+//
+//
+//        }
+//        //if(value < reward_value) break;
+//
+//        break;
+//    }
+//
+//    return res_reward;
+//}
+
+
+int sum(int arr[]) {
+   int sum=0;
+
+   int row = sizeof(arr)/sizeof(*arr);
+
+   EV << "size of: " << row << endl;
+
+   for(int i=0; i<=row; i++) {
+       sum += arr[i];
+   }
+
+   return sum;
+}
+
+void RSU11p::prob_feq(int row, int col, int div_arr[3], int arr[3][3]) {
+    double res[3][3];
+
+    // memcpy(res, feq_msg, row*col*sizeof(int));
+
+    EV << "arr: " << endl;
+//    printMaps(arr);
+
+    for(int i=0; i<row; i++) {
+        for(int j=0; j<col; j++) {
+           if(div_arr[i] != 0) {
+               double val = static_cast<double>(arr[i][j]) / static_cast<double>(div_arr[i]);
+
+               EV << "val: " << val << endl;
+
+               res[i][j] = val;
+               probablitiy_feq[i][j] = val;
+           } else {
+               res[i][j] = 0;
+               probablitiy_feq[i][j] = 0;
+           }
+        }
+    }
+
+    EV << "probability of fequeres: " << endl;
+
+    printMaps(res);
 }
 
 void RSU11p::onWSM(WaveShortMessage* wsm) {
     EV << "RSUWSM" << endl;
     // cancelEvent(start_flooding);
-
+    int count = 0;
+    map<int, MDP*>::iterator it;
     // if the data message finds is here. hit the event which will stop the data msg completely.
     if(DataMsg* temp_wsm = dynamic_cast<DataMsg*>(wsm)) {
         // msg recieved
         int temp_id = temp_wsm->getDesId();
 
+
         EV << "des: " << temp_id << endl;
-        if(temp_id == myId && temp_wsm->getAckRsu() == true) {
+        //&& conStatus.find(temp_wsm->getSouId()) != conStatus.end()
+
+        // Value iteration works on during the certain time interval
+        // Create the peroidic interval for x amount of beacons
+        // x amount of beacons collects information
+        // then timeout for value iteration
+        // and possibly contacting back the successful or unsuccessful for vehicles
+        // for the ranking system.
+        if(temp_id == myId && temp_wsm->getAckRsu() == true ) {
             // store this in the rank table
             int souId = temp_wsm->getSouId();
-            string hop_path = temp_wsm->getNodesIds();
             int hop_count = temp_wsm->getHop();
-            int reward = 10;
+            string hop_path = temp_wsm->getNodesIds();
 
-            EV << "PATH Taken: " << hop_path << endl;
+            int state;
+            int pervState;
 
-            // message has been recieved. Update the status for this node.
-            connectivityStatus = new MDP();
-            connectivityStatus->setState(0);
-            connectivityStatus->setHopCount(hop_count);
+            // 0 == NULL, 1 == V2V, 2 == V2I
 
-            int state = connectivityStatus->getCurState();
+            it = conStatus.find(souId);
+            if(it != conStatus.end()) {
+                state = it->second->getCurState();
+                pervState = it->second->getPervState();
 
-            EV << "State: " << state << endl;
+                EV << "cur_state: " << state << " pervState: " << pervState << endl;
 
-            // get the action it can perform
-            vector<string> getActions = connectivityStatus->actions(connectivityStatus->getCurState());
+               hop_tracked.insert(std::make_pair(souId, hop_count));
 
-            vector<tuple<int, double, int>> getProb = connectivityStatus->succProbReward(connectivityStatus->getCurState(), getActions[0]);
+               // pervious state, p and current state, c
+              // if state == p, c == 0, 0 == feq_msg[0][0]++ == !C, !C
+              // if state == p, c == 0, 1 == feq_msg[0][1]++ == !C, V2V
+              // if state == p, c == 0, 2 == feq_msg[0][2]++ == !C, V2I
+              // if state == p, c == 1, 0 == feq_msg[1][0]++ == V2V, !C
+              // if state == p, c == 1, 1 == feq_msg[1][1]++ == V2V, V2V
+              // if state == p, c == 1, 2 == feq_msg[1][2]++ == V2V, V2I
+              // if state == p, c == 2, 0 == feq_msg[2][0]++ == V2I, !C
+              // if state == p, c == 2, 1 == feq_msg[2][1]++ == V2I, V2V
+              // if state == p, c == 2, 2 == feq_msg[2][2]++ == V2I, V2I
+              //feq_msg[pervState][state] += 1;
 
-            conStatus.insert(std::make_pair(souId, connectivityStatus));
+               feq_msg[pervState][state] += 1;
 
-            track_nodes.push(souId);
+               printMaps(feq_msg);
 
-            //sortConStatus(conStatus);
 
-            printMaps(conStatus);
+               // Past cycles
+               // Collect the pass cycle
 
-            EV << "SIZE OF ACTIONS" << getActions.size() << endl;
 
-            for(auto &act : getActions) {
-                EV << "Action: " << act << endl;
+               // smoothed probability
+               // smoothed out the probability
+
+               // Porbablitity of fequeces;
+
+            } else {
+                if(hop_count == 1) {
+                    state = 2;
+                    pervState = 0;
+                } else if(hop_count > 1) {
+                    state = temp_wsm->getNodeState();
+                    pervState = temp_wsm->getPervState();
+                } else {
+                    state = temp_wsm->getNodeState();
+                    pervState = temp_wsm->getPervState();
+                }
+
+
+               EV << "cur_state: " << state << " pervState: " << pervState << endl;
+
+               hop_tracked.insert(std::make_pair(souId, hop_count));
+
+               // pervious state, p and current state, c
+              // if state == p, c == 0, 0 == feq_msg[0][0]++ == !C, !C
+              // if state == p, c == 0, 1 == feq_msg[0][1]++ == !C, V2V
+              // if state == p, c == 0, 2 == feq_msg[0][2]++ == !C, V2I
+              // if state == p, c == 1, 0 == feq_msg[1][0]++ == V2V, !C
+              // if state == p, c == 1, 1 == feq_msg[1][1]++ == V2V, V2V
+              // if state == p, c == 1, 2 == feq_msg[1][2]++ == V2V, V2I
+              // if state == p, c == 2, 0 == feq_msg[2][0]++ == V2I, !C
+              // if state == p, c == 2, 1 == feq_msg[2][1]++ == V2I, V2V
+              // if state == p, c == 2, 2 == feq_msg[2][2]++ == V2I, V2I
+              //feq_msg[pervState][state] += 1;
+
+               feq_msg[pervState][state] += 1;
+
+               printMaps(feq_msg);
+
+               // Porbablitity of fequeces;
+               int state_not_connected = sum(feq_msg[0]);
+               int state_v2v = sum(feq_msg[1]);
+               int state_v2i = sum(feq_msg[2]);
+
+               EV << "!C == " << state_not_connected << " V2V == " << state_v2v << " V2I == " << state_v2i << endl;
+
+               int div_arr[3] = {state_not_connected, state_v2v, state_v2i};
+
+               int row = sizeof(*feq_msg)/sizeof(*feq_msg[0]);
+               int col = sizeof(feq_msg[0])/sizeof(feq_msg[0][0]);
+
+               prob_feq(row, col, div_arr, feq_msg);
+
+               // Past cycles
+               // Collect the pass cycle
+
+
+               // smoothed probability
+               // smoothed out the probability
+
+
+               // message has been recieved. Update the status for this node.
+               connectivityStatus = new MDP(state); // current state
+
+               connectivityStatus->setPervState(pervState);
+
+               // need the state from the message
+               connectivityStatus->setHopCount(hop_count);
+
+               EV << "State: " << state << endl;
+
+               // schedule a event here after 5 cycles....
+               if(cycles % 5 == 0) {
+                   scheduleAt(simTime(), processing);
+               }
+
+//               tuple<double, int> val_state = this->valueIter(connectivityStatus);
+//
+//               EV << "Value: " << get<0>(val_state) << " State: " << get<1>(val_state) << endl;
+//
+//               connectivityStatus->setPervState(state);
+//
+//               connectivityStatus->setVal(get<0>(val_state));
+//               connectivityStatus->setState(get<1>(val_state));
+
+               conStatus.insert(std::make_pair(souId, connectivityStatus));
+
+               track_nodes.push(souId);
+
+                   //sortConStatus(conStatus);
+
+               printMaps(conStatus);
             }
 
-            for(auto &key: getProb) {
-                EV << "State: " << get<0>(key) << " |Prob " << get<1>(key) << " |Reward " << get<2>(key) << endl;
-            }
-
-            results = this->valueIter(conStatus);
         }else if(temp_id == myId && temp_wsm->getEndMsg() == true) {
+            // cancelEvent(start_flooding);
             EV << "End MSG here..." << endl;
 
             int node_id = temp_wsm->getSouId();
 
             EV << "Sou Id: " << node_id << endl;
-            conStatus.erase(node_id);
+            map<int,MDP*>::iterator it = conStatus.find(node_id);
+
+            // Should I run the value iteration here again?
+
+            if(it != conStatus.end()) {
+                int id = it->first;
+                MDP* temp = it->second;
+
+//                tuple<double, int> val_state = valueIter(temp);
+//
+//                temp->setVal(get<0>(val_state));
+//                temp->setPervState(temp->getCurState());
+//                temp->setState(get<1>(val_state));
+
+
+                EV << "id: " << id << "MDP: " << temp << endl;
+
+                finalStatus.insert(std::make_pair(id, temp));
+            }
+
+            compareStatus(conStatus, finalStatus);
+
+            vector<pair<int, MDP*>> sorted = sortConStatus(conStatus);
+
+            printMaps(sorted);
+            printMaps(conStatus);
         }
     }
+}
+
+map<int, MDP*> RSU11p::compareStatus(map<int, MDP*> con, map<int, MDP*> final) {
+    map<int, MDP*> res;
+
+    for(auto &c: con) {
+        for(auto &f: final) {
+            if(c.first == f.first) {
+                res.insert(std::make_pair(f.first, c.second));
+            } else {
+                c.second->setVal(0.0);
+
+                res.insert(std::make_pair(c.first, c.second));
+            }
+        }
+    }
+
+    return res;
 }
 
 void RSU11p::finish() {
@@ -289,25 +648,60 @@ void RSU11p::finish() {
 
     EV << "When does this work? " << endl;
 
-    ofstream log;
-    ostringstream o;
+    Logging* log = new Logging();
 
-    log.open("./results/results.txt");
-    log << "-Node_id | hop_end_count | -" << endl;
-    for(auto &key: neighbours) {
-     // pair<int, vector<int>> key(neighbour);
-        log << key.first << " | " << key.second[0] << " | " << key.second[1] << endl;
-    }
-    log.close();
+    EV << "Feq_msg" << endl;
+    printMaps(feq_msg);
+
+    EV << "Prob_feq" << endl;
+    printMaps(probablitiy_feq);
 
 
-    log.open("./results/results_MDP.txt");
-//    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
-    log << "-Node_Id | Value -" << endl;
-    for(auto &key: results) {
-        log << key.first << "|" << key.second << endl;
-    }
-    log.close();
+    log->storeNeighbours(neighbours, "./results/results.txt");
+    log->storeConStatus(conStatus, "./results/results_MDP.txt", "./results/results_MDP.csv");
+
+    EV << "Cycles : " << cycles << endl;
+
+
+//    log.open("./results/results_MDP.txt");
+////    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
+//    log << "-Node_Id | Value - | -HopCount- " << endl;
+//    for(auto &key: conStatus) {
+//        log << key.first << "|" << key.second->getVal() << "|" << key.second->getHopCount()  << endl;
+//
+//    }
+//    log.close();
+//
+//    log.open("./results/final_status.txt");
+//    //    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);
+//    log << "-Node_Id | Value - | -HopCount- " << endl;
+//    for(auto &key: finalStatus) {
+//        log << key.first << "|" << key.second->getVal() << "|" << key.second->getHopCount()  << endl;
+//
+//    }
+//    log.close();
+//
+//
+
+    // map<int, MDP*> final_MDP_res = compareStatus(conStatus, finalStatus);
+
+
+//    log.open("./results/MPD_Status_f.txt");
+//    log << "-Node_Id | Value - | -HopCount- " << endl;
+//    for(auto &key: final_MDP_res) {
+//        log << key.first << "|" << key.second->getVal() << "|" << key.second->getHopCount()  << endl;
+//
+//    }
+//    log.close();
+
+
+
+//    log.open("./results/MDP_Sorted.txt");
+//    log << "-Node_Id | Value - | -HopCount- " << endl;
+//    for (auto &key: sortedStatus) {
+//        log << key.first << "|" << key.second->getVal() << "|" << key.second->getHopCount()  << endl;
+//    }
+//    log.close();
 
 }
 
@@ -320,21 +714,30 @@ int RSU11p::search() {
     return top_node;
 }
 
+bool sortBysec(const pair<int, MDP*> &a, const pair<int, MDP*> &b) {
+    return (a.second->getVal() < b.second->getVal());
+}
+
 // ranking table
 vector<pair<int, MDP*>> RSU11p::sortConStatus(map<int, MDP*> constatu) {
     vector<pair<int, MDP*>> sortedConStatus;
 
-//    auto cmp = [](pair<int, MDP*> const &a, pair<int, MDP*> const &b) {
-//       return a.second->getReward() != b.second->getReward() ? a.second->getReward() < b.second->getReward() : b.second->getReward() < a.second->getReward();
-//    };
-//
-//
-//    map<int, MDP*> ::iterator it2;
-//    for(it2=constatu.begin(); it2!=constatu.end(); it2++) {
-//        sortedConStatus.push_back(make_pair(it2->first, it2->second));
-//    }
-//
-//    sort(sortedConStatus.begin(), sortedConStatus.end(), cmp);
+    auto cmp = [](const pair<int, MDP*> &a, const pair<int, MDP*> &b) {
+        if(a.second->getVal() < b.second->getVal()) {
+            return a.second->getVal() < b.second->getVal();
+        }
+        return b.second->getVal() < a.second->getVal();
+      // return a.second->getVal() < b.second->getVal() ? b.second->getVal() : a.second->getVal();
+    };
+
+    map<int, MDP*>::iterator it2;
+    for(it2=constatu.begin(); it2!=constatu.end(); it2++) {
+        int id = it2->first;
+        MDP* temp = it2->second;
+        sortedConStatus.push_back(std::make_pair(id, temp));
+    }
+
+    sort(sortedConStatus.begin(), sortedConStatus.end(), sortBysec);
 
     return sortedConStatus;
 }

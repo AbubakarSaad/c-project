@@ -188,6 +188,9 @@ DataMsg::DataMsg(const char *name, short kind) : ::WaveShortMessage(name,kind)
     this->ack = false;
     this->ackRsu = false;
     this->endMsg = false;
+    this->nodeState = 0;
+    this->pervState = 0;
+    this->mdp = false;
 }
 
 DataMsg::DataMsg(const DataMsg& other) : ::WaveShortMessage(other)
@@ -219,8 +222,10 @@ void DataMsg::copy(const DataMsg& other)
     this->ackRsu = other.ackRsu;
     this->endMsg = other.endMsg;
     this->nodeState = other.nodeState;
+    this->pervState = other.pervState;
     this->action = other.action;
     this->transcation = other.transcation;
+    this->mdp = other.mdp;
 }
 
 void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
@@ -236,8 +241,10 @@ void DataMsg::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimPacking(b,this->ackRsu);
     doParsimPacking(b,this->endMsg);
     doParsimPacking(b,this->nodeState);
+    doParsimPacking(b,this->pervState);
     doParsimPacking(b,this->action);
     doParsimPacking(b,this->transcation);
+    doParsimPacking(b,this->mdp);
 }
 
 void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -253,8 +260,10 @@ void DataMsg::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimUnpacking(b,this->ackRsu);
     doParsimUnpacking(b,this->endMsg);
     doParsimUnpacking(b,this->nodeState);
+    doParsimUnpacking(b,this->pervState);
     doParsimUnpacking(b,this->action);
     doParsimUnpacking(b,this->transcation);
+    doParsimUnpacking(b,this->mdp);
 }
 
 Coord& DataMsg::getMessageOriginPosition()
@@ -347,14 +356,24 @@ void DataMsg::setEndMsg(bool endMsg)
     this->endMsg = endMsg;
 }
 
-const char * DataMsg::getNodeState() const
+int DataMsg::getNodeState() const
 {
-    return this->nodeState.c_str();
+    return this->nodeState;
 }
 
-void DataMsg::setNodeState(const char * nodeState)
+void DataMsg::setNodeState(int nodeState)
 {
     this->nodeState = nodeState;
+}
+
+int DataMsg::getPervState() const
+{
+    return this->pervState;
+}
+
+void DataMsg::setPervState(int pervState)
+{
+    this->pervState = pervState;
 }
 
 const char * DataMsg::getAction() const
@@ -375,6 +394,16 @@ const char * DataMsg::getTranscation() const
 void DataMsg::setTranscation(const char * transcation)
 {
     this->transcation = transcation;
+}
+
+bool DataMsg::getMdp() const
+{
+    return this->mdp;
+}
+
+void DataMsg::setMdp(bool mdp)
+{
+    this->mdp = mdp;
 }
 
 class DataMsgDescriptor : public omnetpp::cClassDescriptor
@@ -442,7 +471,7 @@ const char *DataMsgDescriptor::getProperty(const char *propertyname) const
 int DataMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 12+basedesc->getFieldCount() : 12;
+    return basedesc ? 14+basedesc->getFieldCount() : 14;
 }
 
 unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
@@ -466,8 +495,10 @@ unsigned int DataMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<12) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<14) ? fieldTypeFlags[field] : 0;
 }
 
 const char *DataMsgDescriptor::getFieldName(int field) const
@@ -489,10 +520,12 @@ const char *DataMsgDescriptor::getFieldName(int field) const
         "ackRsu",
         "endMsg",
         "nodeState",
+        "pervState",
         "action",
         "transcation",
+        "mdp",
     };
-    return (field>=0 && field<12) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<14) ? fieldNames[field] : nullptr;
 }
 
 int DataMsgDescriptor::findField(const char *fieldName) const
@@ -509,8 +542,10 @@ int DataMsgDescriptor::findField(const char *fieldName) const
     if (fieldName[0]=='a' && strcmp(fieldName, "ackRsu")==0) return base+7;
     if (fieldName[0]=='e' && strcmp(fieldName, "endMsg")==0) return base+8;
     if (fieldName[0]=='n' && strcmp(fieldName, "nodeState")==0) return base+9;
-    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+10;
-    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+11;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pervState")==0) return base+10;
+    if (fieldName[0]=='a' && strcmp(fieldName, "action")==0) return base+11;
+    if (fieldName[0]=='t' && strcmp(fieldName, "transcation")==0) return base+12;
+    if (fieldName[0]=='m' && strcmp(fieldName, "mdp")==0) return base+13;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -532,11 +567,13 @@ const char *DataMsgDescriptor::getFieldTypeString(int field) const
         "bool",
         "bool",
         "bool",
+        "int",
+        "int",
         "string",
         "string",
-        "string",
+        "bool",
     };
-    return (field>=0 && field<12) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<14) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **DataMsgDescriptor::getFieldPropertyNames(int field) const
@@ -612,9 +649,11 @@ std::string DataMsgDescriptor::getFieldValueAsString(void *object, int field, in
         case 6: return bool2string(pp->getAck());
         case 7: return bool2string(pp->getAckRsu());
         case 8: return bool2string(pp->getEndMsg());
-        case 9: return oppstring2string(pp->getNodeState());
-        case 10: return oppstring2string(pp->getAction());
-        case 11: return oppstring2string(pp->getTranscation());
+        case 9: return long2string(pp->getNodeState());
+        case 10: return long2string(pp->getPervState());
+        case 11: return oppstring2string(pp->getAction());
+        case 12: return oppstring2string(pp->getTranscation());
+        case 13: return bool2string(pp->getMdp());
         default: return "";
     }
 }
@@ -637,9 +676,11 @@ bool DataMsgDescriptor::setFieldValueAsString(void *object, int field, int i, co
         case 6: pp->setAck(string2bool(value)); return true;
         case 7: pp->setAckRsu(string2bool(value)); return true;
         case 8: pp->setEndMsg(string2bool(value)); return true;
-        case 9: pp->setNodeState((value)); return true;
-        case 10: pp->setAction((value)); return true;
-        case 11: pp->setTranscation((value)); return true;
+        case 9: pp->setNodeState(string2long(value)); return true;
+        case 10: pp->setPervState(string2long(value)); return true;
+        case 11: pp->setAction((value)); return true;
+        case 12: pp->setTranscation((value)); return true;
+        case 13: pp->setMdp(string2bool(value)); return true;
         default: return false;
     }
 }

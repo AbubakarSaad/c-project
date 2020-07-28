@@ -38,7 +38,8 @@ out/clang-release//src/RSU11p.o: src/RSU11p.cc src/RSU11p.h \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/mobility/traci/TraCICoordinateTransformation.h \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/mobility/traci/TraCICommandInterface.h \
   C:/Users/abuba/src/veins-4.7.1/src\veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h \
-  src/messages/BeaconMsg_m.h src/messages/DataMsg_m.h src/MDP.h
+  src/messages/BeaconMsg_m.h src/messages/DataMsg_m.h src/MDP.h \
+  src/logging/Logging.h
 
 src/RSU11p.h:
 
@@ -125,3 +126,5 @@ src/messages/BeaconMsg_m.h:
 src/messages/DataMsg_m.h:
 
 src/MDP.h:
+
+src/logging/Logging.h:

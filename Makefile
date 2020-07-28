@@ -34,6 +34,7 @@ OBJS = \
     $O/src/MDP.o \
     $O/src/MyThesisApp.o \
     $O/src/RSU11p.o \
+    $O/src/logging/Logging.o \
     $O/src/messages/Ack_m.o \
     $O/src/messages/BeaconMsg_m.o \
     $O/src/messages/DataMsg_m.o

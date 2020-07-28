@@ -24,7 +24,7 @@
 // }}
 
 /**
- * Class generated from <tt>src/messages/DataMsg.msg:27</tt> by nedtool.
+ * Class generated from <tt>src/messages/DataMsg.msg:28</tt> by nedtool.
  * <pre>
  * packet DataMsg extends WaveShortMessage
  * {
@@ -40,9 +40,12 @@
  *     bool endMsg = false;
  * 
  *     // data info
- *     string nodeState;
+ *     int nodeState;
+ *     int pervState;
  *     string action;
  *     string transcation;
+ *     bool mdp;
+ * 
  * 
  * }
  * </pre>
@@ -59,9 +62,11 @@ class DataMsg : public ::WaveShortMessage
     bool ack;
     bool ackRsu;
     bool endMsg;
-    ::omnetpp::opp_string nodeState;
+    int nodeState;
+    int pervState;
     ::omnetpp::opp_string action;
     ::omnetpp::opp_string transcation;
+    bool mdp;
 
   private:
     void copy(const DataMsg& other);
@@ -99,12 +104,16 @@ class DataMsg : public ::WaveShortMessage
     virtual void setAckRsu(bool ackRsu);
     virtual bool getEndMsg() const;
     virtual void setEndMsg(bool endMsg);
-    virtual const char * getNodeState() const;
-    virtual void setNodeState(const char * nodeState);
+    virtual int getNodeState() const;
+    virtual void setNodeState(int nodeState);
+    virtual int getPervState() const;
+    virtual void setPervState(int pervState);
     virtual const char * getAction() const;
     virtual void setAction(const char * action);
     virtual const char * getTranscation() const;
     virtual void setTranscation(const char * transcation);
+    virtual bool getMdp() const;
+    virtual void setMdp(bool mdp);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const DataMsg& obj) {obj.parsimPack(b);}

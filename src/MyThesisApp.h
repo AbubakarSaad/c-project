@@ -51,6 +51,7 @@ private:
 
     protected:
        // meta info process
+       int state;
 
        // variables
        cMessage* start_flooding_node;
@@ -58,6 +59,7 @@ private:
        cMessage* start_processing;
        cMessage* start_process_data;
        cMessage* ack_to_rsu;
+       cMessage* end_processing;
 
        bool sendMessage; // beacon
        bool sendMessageData; // data
@@ -78,7 +80,12 @@ private:
        // Store MDP
        // Model info
        map<int, vector<int>> neighbours;
-       MDP* connectivityStatus;
+
+       vector<int> forward_track;
+
+       vector<int>::iterator it;
+
+
        map<int, MDP*> conStatus;
        double trans_probabilties[4][4] = {{0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
 

@@ -26,19 +26,12 @@
 using namespace std;
 
 class MDP {
-    // mapping from action to probability transition matrix
-    map<int, vector<double>> actionTransitions;
-
-    /**
-     *  where entry (i, j) is the reward associated with taking action j from state j
-     */
-    double actionRewards[2][2] = {{}}; // 0 == !C, 1 == V, 2 == R, 3 == VR transition probablity matrix
     /**
      * transactions
      */
-    double transitionProbab[2][2] = {{}};
+    double transitionProbab[3][3] = {{0.33, 0.33, 0.33}, {0.33, 0.33, 0.33}, {0.33, 0.33, 0.33}};
     // discount factor
-    double discount_factor = 1.0;
+    double discount_factor = 0.3;
 
     // Total number of states in MDP
     int numStates;
@@ -48,30 +41,47 @@ class MDP {
 
     // state of the node
     int state_of_node;
+    int perv_state_of_node;
 
     // Final hop count
     int final_hop_count;
 
+    // value of the node
+    double value = 0;
+
+    // "State" === String
+    string state_string;
 
 public:
-    MDP(); // constructor for MDP
+    MDP(int state); // constructor for MDP
     ~MDP();
+
+    // state string
+    string getStateString();
+    void setStateString();
 
     // Current State
     int getCurState();
+    int getPervState();
 
     // Start State
     int startState();
 
     // set State
     void setState(int state);
+    void setPervState(int preState);
 
     // End State
     void setHopCount(int hop);
+    int getHopCount();
     bool isEndState();
 
     // Discount factor
     double getDiscount();
+
+    // value set
+    void setVal(double val);
+    double getVal();
 
     // return the list of actions
     vector<string> actions(int state);
@@ -79,7 +89,7 @@ public:
     // return list of (newState, prob, reward) triples
     // state = s, action = a, s'=newState
     // prob = T(s, a, s'), reward= Reward(s, a, s')
-    vector<tuple<int, double, int>> succProbReward(int state, string action);
+    vector<tuple<int, double, int>> succProbReward(int state, string action, double prob[3][3], int pervState);
 
 
     // policy or assiging reward
