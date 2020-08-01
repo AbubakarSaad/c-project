@@ -32,6 +32,7 @@ void MyThesisApp::initialize(int stage)
         sendMessage = false;
         sendMessageData = false;
         correctNodeMsg = false;
+        succNodeMsg = false;
 
         start_flooding_node = new cMessage("flooding_nodes");
         stop_flooding_node = new cMessage("stop_flooding");
@@ -127,6 +128,51 @@ void MyThesisApp::onBSM(BasicSafetyMessage* bsm) {
         EV << "My id: " << myId << endl;
         printMaps(neighbours);
     }
+}
+
+
+
+vector<string> split(const string &s, const string &separator)
+{
+    regex reg("-");
+
+    sregex_token_iterator iter(s.begin(), s.end(), reg, -1);
+    sregex_token_iterator end;
+
+    vector<string> vec(iter, end);
+
+    return vec;
+}
+
+vector<int> strToInt(string ranks_ids) {
+
+    // split the rank_ids
+    vector<string> string_ids = split(ranks_ids, "-");
+    vector<int> res;
+
+    for(auto &i : string_ids) {
+        // after the split find the string ids
+        // convert them to int
+        EV << i << endl;
+        if(!i.empty()) {
+            res.push_back(stoi(i));
+        }
+    }
+
+    return res;
+}
+
+bool process(string rank_ids, int vehicle_id) {
+
+    vector<int> veh_list = strToInt(rank_ids);
+
+    for(auto &i : veh_list) {
+        if(i == vehicle_id) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
@@ -243,7 +289,61 @@ void MyThesisApp::onWSM(WaveShortMessage* wsm) {
                   // delete the msg if the temp_wsm is greater then 4
                 }
             }
-        }  else {
+        } else if(temp_wsm->getAckRank() == true) {
+            EV << "Ranking Here....." << endl;
+
+            // process the id here
+            string rank_ids = temp_wsm->getRankIds();
+
+            bool my_id = process(rank_ids, myId);
+
+            if(my_id) {
+                // if the id in the list belongs to you, reply
+                DataMsg* rank_ack = new DataMsg("Replying back");
+                rank_ack->setDesId(RSU_id);
+                rank_ack->setSouId(myId);
+                rank_ack->setHop(1);
+                rank_ack->setAckRank(true);
+                populateWSM(rank_ack);
+
+                sendDelayedDown(rank_ack->dup(), 1 + uniform(0.01,0.2));
+
+            } else {
+                // else forward the message to the other cars, till they all reply to the RSU
+                if(data_hop <= 4 && succNodeMsg == false) {
+                    temp_wsm->setHop(data_hop + 1);
+
+                    it = find(succ_forward_track.begin(), succ_forward_track.end(), temp_wsm->getSouId());
+                    if(it != succ_forward_track.end()) {
+                        succNodeMsg = true;
+                    } else {
+                        succ_forward_track.push_back(temp_wsm->getSouId());
+
+                        succNodeMsg = false;
+                    }
+
+
+                    sendDelayedDown(temp_wsm->dup(),  1 + uniform(0.01,0.2));
+
+                }else {
+                    succNodeMsg = true;
+                    // delete(temp_wsm);
+                }
+
+
+
+
+            }
+
+
+
+
+
+
+        }
+
+
+        else {
             // Getting msg from other nodes
             // des_id == rsu_id
             EV << "Find RSU" << endl;

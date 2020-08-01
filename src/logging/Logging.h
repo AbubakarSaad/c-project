@@ -22,6 +22,7 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
+#include <unordered_map>
 #include <cstdlib>
 
 using namespace std;
@@ -33,6 +34,7 @@ public:
     void printMaps(map<int, MDP*> const &m);
     void printMaps(vector<pair<int, MDP*>> const &m);
 
+    void storeSuccessful(unordered_map<int, string> statusCheck, string fileName);
     void storeNeighbours(map<int, vector<int>> neighbours, string fileName);
     void storeConStatus(map<int, MDP*> conStatus, string fileName, string csvFileName);
 

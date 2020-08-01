@@ -139,20 +139,68 @@ void RSU11p::handleSelfMsg(cMessage* msg) {
         cancelEvent(start_flooding);
         cancelEvent(ack_msg);
 
-        EV << "RUNS AT 1500s" << endl;
+        EV << "RUNS AT 800s" << endl;
+
+        // sort the conStatus first
+        vector<pair<int, MDP*>> sorted = sortConStatus(conStatus);
+        printMaps(sorted);
 
         // get the top 10 and bottom 10
+        // top 10
+        vector<pair<int, MDP*>> top_10;
+        vector<pair<int, MDP*>> bottom_10;
+
+        for(int i=0; i<10; i++) {
+            top_10.push_back(sorted[i]);
+            vecStatusCheck.push_back(make_pair(sorted[i].first, "no"));
+            statusCheck.insert(make_pair(sorted[i].first, "no"));
+        }
+
+        printMaps(top_10);
+
+        // bottom 10
+        int size = sorted.size() - 1;
+
+        for(int i=size; i>(size - 10); i--) {
+            bottom_10.push_back(sorted[i]);
+            vecStatusCheck.push_back(make_pair(sorted[i].first, "no"));
+            statusCheck.insert(make_pair(sorted[i].first, "no"));
+        }
+
+        printMaps(bottom_10);
+
         // concentate them into a string and send that message
+
+        string concentat_ids = "";
+
+        for(auto &i : top_10) {
+            concentat_ids += to_string(i.first) + "-";
+        }
+
+        EV << "IDS: " << concentat_ids << endl;
+
+        for(auto &i : bottom_10) {
+            concentat_ids += to_string(i.first) + "-";
+        }
+
+
+        EV << "IDS: " << concentat_ids << endl;
+
+
+        // Create a message
+        DataMsg* ranking_wsm = new DataMsg("Rank");
+
+        ranking_wsm->setRankIds(concentat_ids.c_str());
+        ranking_wsm->setSouId(myId);
+        ranking_wsm->setHop(1);
+        ranking_wsm->setAckRank(true);
+
+        populateWSM(ranking_wsm);
+        sendDown(ranking_wsm->dup());
+
+
         // if the id exist in the list, the vehicle replies
         // if it doesn't exist, then 'somehow' check the vehicle in RSU of not replying: maybe the value becomes zero
-
-
-
-
-
-
-
-
 
 
     } else if(msg == processing) {
@@ -588,39 +636,19 @@ void RSU11p::onWSM(WaveShortMessage* wsm) {
                printMaps(conStatus);
             }
 
-        }else if(temp_id == myId && temp_wsm->getEndMsg() == true) {
-            // cancelEvent(start_flooding);
-            EV << "End MSG here..." << endl;
+        } else if(temp_id == myId && temp_wsm->getAckRank() == true) {
 
-            int node_id = temp_wsm->getSouId();
+            EV << "Replied by the vehicle" << endl;
 
-            EV << "Sou Id: " << node_id << endl;
-            map<int,MDP*>::iterator it = conStatus.find(node_id);
+            int souId = temp_wsm->getSouId();
 
-            // Should I run the value iteration here again?
+            unordered_map<int, string>::iterator it;
 
-            if(it != conStatus.end()) {
-                int id = it->first;
-                MDP* temp = it->second;
-
-//                tuple<double, int> val_state = valueIter(temp);
-//
-//                temp->setVal(get<0>(val_state));
-//                temp->setPervState(temp->getCurState());
-//                temp->setState(get<1>(val_state));
-
-
-                EV << "id: " << id << "MDP: " << temp << endl;
-
-                finalStatus.insert(std::make_pair(id, temp));
+            it = statusCheck.find(souId);
+            if(it != statusCheck.end()) {
+                it->second = "yes";
             }
 
-            compareStatus(conStatus, finalStatus);
-
-            vector<pair<int, MDP*>> sorted = sortConStatus(conStatus);
-
-            printMaps(sorted);
-            printMaps(conStatus);
         }
     }
 }
@@ -658,6 +686,7 @@ void RSU11p::finish() {
 
 
     log->storeNeighbours(neighbours, "./results/results.txt");
+    log->storeSuccessful(statusCheck, "./results/check.txt");
     log->storeConStatus(conStatus, "./results/results_MDP.txt", "./results/results_MDP.csv");
 
     EV << "Cycles : " << cycles << endl;
@@ -715,20 +744,13 @@ int RSU11p::search() {
 }
 
 bool sortBysec(const pair<int, MDP*> &a, const pair<int, MDP*> &b) {
-    return (a.second->getVal() < b.second->getVal());
+    return (b.second->getVal() < a.second->getVal());
 }
 
 // ranking table
 vector<pair<int, MDP*>> RSU11p::sortConStatus(map<int, MDP*> constatu) {
     vector<pair<int, MDP*>> sortedConStatus;
 
-    auto cmp = [](const pair<int, MDP*> &a, const pair<int, MDP*> &b) {
-        if(a.second->getVal() < b.second->getVal()) {
-            return a.second->getVal() < b.second->getVal();
-        }
-        return b.second->getVal() < a.second->getVal();
-      // return a.second->getVal() < b.second->getVal() ? b.second->getVal() : a.second->getVal();
-    };
 
     map<int, MDP*>::iterator it2;
     for(it2=constatu.begin(); it2!=constatu.end(); it2++) {

@@ -47,6 +47,10 @@
  *     bool mdp;
  * 
  * 
+ *     // ranking
+ *     string rankIds;
+ *     bool ackRank;
+ * 
  * }
  * </pre>
  */
@@ -67,6 +71,8 @@ class DataMsg : public ::WaveShortMessage
     ::omnetpp::opp_string action;
     ::omnetpp::opp_string transcation;
     bool mdp;
+    ::omnetpp::opp_string rankIds;
+    bool ackRank;
 
   private:
     void copy(const DataMsg& other);
@@ -114,6 +120,10 @@ class DataMsg : public ::WaveShortMessage
     virtual void setTranscation(const char * transcation);
     virtual bool getMdp() const;
     virtual void setMdp(bool mdp);
+    virtual const char * getRankIds() const;
+    virtual void setRankIds(const char * rankIds);
+    virtual bool getAckRank() const;
+    virtual void setAckRank(bool ackRank);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const DataMsg& obj) {obj.parsimPack(b);}

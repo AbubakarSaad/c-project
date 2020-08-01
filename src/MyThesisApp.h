@@ -30,6 +30,7 @@
 #include <vector>
 #include <stdio.h>
 #include <sstream>
+#include <regex>
 //#include "RSU11p.h"
 
 
@@ -64,6 +65,7 @@ private:
        bool sendMessage; // beacon
        bool sendMessageData; // data
        bool correctNodeMsg; // Look for Correct Node
+       bool succNodeMsg;
        bool rsu_id_flag = false;
        bool endMsg = false; // For node leaving the simulation
 
@@ -82,6 +84,7 @@ private:
        map<int, vector<int>> neighbours;
 
        vector<int> forward_track;
+       vector<int> succ_forward_track;
 
        vector<int>::iterator it;
 

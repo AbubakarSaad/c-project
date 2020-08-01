@@ -52,6 +52,17 @@ void Logging::storeNeighbours(map<int, vector<int>> neighbours, string fileName)
     log.close();
 }
 
+void Logging::storeSuccessful(unordered_map<int, string> statusCheck, string fileName) {
+    log.open(fileName); // ./results/results.txt
+    log << "-Node_id | hop_end_count | -" << endl;
+    for(auto &key: statusCheck) {
+     // pair<int, vector<int>> key(neighbour);
+        log << key.first << " | " << key.second << endl;
+    }
+    log.close();
+
+}
+
 void Logging::storeConStatus(map<int, MDP*> conStatus, string fileName, string csvFileName) {
     log.open(fileName); //
     //    vector<pair<int, MDP*>> resultedConStatus = sortConStatus(conStatus);

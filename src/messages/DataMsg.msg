@@ -46,4 +46,8 @@ packet DataMsg extends WaveShortMessage {
     bool mdp;
     
     
+    // ranking
+    string rankIds;
+    bool ackRank;
+    
 }	

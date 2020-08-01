@@ -25,6 +25,7 @@
 #include <iostream>
 #include <stack>
 #include <algorithm>
+#include <unordered_map>
 #include <cstdlib>
 
 using namespace std;
@@ -45,7 +46,8 @@ private:
         map<int, MDP*> conStatus;
         map<int, MDP*> finalStatus;
         map<int, int> hop_tracked;
-
+        unordered_map<int, string> statusCheck;
+        vector<pair<int, string>> vecStatusCheck;
         // track ids
         stack<int> track_nodes; // tracks the connected nodes
 
@@ -80,6 +82,7 @@ private:
         int search(); // returns the last id
         vector<pair<int, MDP*>> sortConStatus(map<int, MDP*> constatu);
         map<int, MDP*> compareStatus(map<int, MDP*> con, map<int, MDP*> final);
+
 
         tuple<double, int> Q(vector<tuple<int, double, int>> probs, double value, double discount);
 
