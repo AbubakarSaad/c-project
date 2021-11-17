@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "veins/veins.h"
+// #include "veins/veins.h"
 
 #include <omnetpp.h>
 #include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
