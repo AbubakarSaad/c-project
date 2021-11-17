@@ -18,24 +18,29 @@
 //
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/BaseFrame1609_4_m.h"
+#include "veins/modules/messages/WaveShortMessage_m.h"
 }}
 
-namespace veins;
-
-class BaseFrame1609_4;
 class noncobject Coord;
-class LAddress::L2Type extends void;
+class WaveShortMessage;
 
-
-packet DataMsg extends BaseFrame1609_4 {
+packet DataMsg extends WaveShortMessage {
+    
+    // meta info
     Coord messageOriginPosition;
     double senderDirection;
     string nodesIds;
-    
-    LAddress::L2Type senderAddress = -1;
-    
-    int serial = 0;
     int hop;
+    int souId;
+    int desId;
+    bool ack = false;
+    bool ackRsu = false;
+    bool endMsg = false;
     
-}
+    // data info
+    int nodeState;
+    string action;
+    string transcation;
+    
+}	
+

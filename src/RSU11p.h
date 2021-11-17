@@ -15,58 +15,64 @@
 
 #pragma once
 
-#include "veins/veins.h"
-
 #include <fstream>
-#include "veins/modules/application/ieee80211p/DemoBaseApplLayer.h"
+#include "veins/modules/application/ieee80211p/BaseWaveApplLayer.h"
 #include "src/messages/BeaconMsg_m.h"
+#include "src/messages/DataMsg_m.h"
+#include "src/MDP.h"
 #include <iostream>
+#include <stack>
+#include <algorithm>
+#include <cstdlib>
 
 using namespace std;
-namespace veins {
 
-class VEINS_API RSU11p : public DemoBaseApplLayer {
+class RSU11p : public BaseWaveApplLayer {
 private:
-    /**
-     * Struct used for MDP of current node
-     */
-    struct MDPinfo {
-        string state_of_rsu;
-        string action; // Has to be enum
-        string transcation; // This will perform the action
-        int reward; // Needs to be calculated
-    };
-
-    /**
-     * State of the Nodes
-     */
-    enum StateOfNodes {
-        CONNECTED,
-        NOT_CONNECTED
-    };
-    /**
-     * Kind of actions and transcation
-     */
-    enum NodeActions {
-        CONNECTED_RSU,
-        CONNECTED_NODE,
-    };
-
-
-
     protected:
         // Stores the node information of mdp state and updates accordingly
         map<int, vector<int>> neighbours;
-        map<int, MDPinfo*> rsuTable;
 
-        bool is_flooded;
+        // srcID, path & status
+        map<int, pair<string, string>> nodeStatus;
+        // sourID and State
+        map<int, MDP*> conStatus;
+        // track ids
+        stack<int> track_nodes; // tracks the connected nodes
 
-        virtual void onWSM(BaseFrame1609_4* wsm);
-        virtual void onWSA(DemoServiceAdvertisment* wsa);
-        virtual void onBSM(DemoSafetyMessage* bsm);
+        // value results in here
+        map<int, double> results;
+
+        cMessage* start_flooding;
+        cMessage* stop_flooding;
+        cMessage* ack_msg;
+        cMessage* finishing;
+
+        double request_interval_size;
+        double request_tolerance_size;
+        double request_ending;
+
+        MDP* connectivityStatus;
+
+        // helper functions
+        void printMaps(map<int, vector<int>> const &m);
+        void printMaps(map<int, MDP*> const &m);\
+        void printMaps(vector<pair<int, MDP*>> const &m);
+        map<int, double> valueIter(map<int, MDP*> mdpMap);
+
+        virtual void onWSM(WaveShortMessage* wsm);
+        virtual void onWSA(WaveServiceAdvertisment* wsa);
+        virtual void onBSM(BasicSafetyMessage* bsm);
+        int search(); // returns the last id
+        vector<pair<int, MDP*>> sortConStatus(map<int, MDP*> constatu);
+
+
+        double Q(vector<tuple<int, double, int>> probs, vector<double> values, double discount);
+
+        double max_double_val(vector<double> max_val);
 
     public:
         virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage* msg);
-};
+        virtual void finish();
 };

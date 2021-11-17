@@ -19,20 +19,22 @@
 
 cplusplus {{
 #include "veins/base/utils/Coord.h"
-#include "veins/modules/messages/BaseFrame1609_4_m.h"
+#include "veins/modules/messages/BasicSafetyMessage_m.h"
 }}
 
-namespace veins;
-
-class BaseFrame1609_4;
+class BasicSafetyMessage;
 class noncobject Coord;
-class LAddress::L2Type extends void;
 
-packet BeaconMsg extends BaseFrame1609_4 {
+packet BeaconMsg extends BasicSafetyMessage {
+    // meta info
     Coord messageOriginPosition;
     double senderDirection;
-    string nodesIds;
-    LAddress::L2Type senderAddress = -1;
-    int serial = 0;
+    string Path;
     int hop;
+    int RsuID;
+    int DesID;
+    int SrcID;
+    bool AckMsg = false;
+    bool IsFlooding = true;
+    // "message" info
 }

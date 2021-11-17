@@ -14,12 +14,17 @@
 // 
 
 package globcomm.src;
-import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
+import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
 
-simple RSU11p extends DemoBaseApplLayer
+simple RSU11p extends BaseWaveApplLayer
 {
- 	
+   		@class(RSU11p);
    		
-   		@class(veins::RSU11p);
+   		
+   		double request_interval @unit("s") = default(15s);  // interval to start the request
+    	double request_tolerance @unit("s") = default(5s);  // tollerance interval to receive informations
+    	double request_ending @unit("s") = default(800s); // ending interval to check if the nodes reply back
+    	
+    	@display("i=block/app2");
     
 }

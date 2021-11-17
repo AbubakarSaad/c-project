@@ -148,7 +148,6 @@ void doParsimUnpacking(omnetpp::cCommBuffer *, T& t)
 
 }  // namespace omnetpp
 
-namespace veins {
 
 // forward
 template<typename T, typename A>
@@ -180,15 +179,18 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 
 Register_Class(BeaconMsg)
 
-BeaconMsg::BeaconMsg(const char *name, short kind) : ::veins::BaseFrame1609_4(name,kind)
+BeaconMsg::BeaconMsg(const char *name, short kind) : ::BasicSafetyMessage(name,kind)
 {
     this->senderDirection = 0;
-    this->senderAddress = -1;
-    this->serial = 0;
     this->hop = 0;
+    this->RsuID = 0;
+    this->DesID = 0;
+    this->SrcID = 0;
+    this->AckMsg = false;
+    this->IsFlooding = true;
 }
 
-BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::veins::BaseFrame1609_4(other)
+BeaconMsg::BeaconMsg(const BeaconMsg& other) : ::BasicSafetyMessage(other)
 {
     copy(other);
 }
@@ -200,7 +202,7 @@ BeaconMsg::~BeaconMsg()
 BeaconMsg& BeaconMsg::operator=(const BeaconMsg& other)
 {
     if (this==&other) return *this;
-    ::veins::BaseFrame1609_4::operator=(other);
+    ::BasicSafetyMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -209,32 +211,41 @@ void BeaconMsg::copy(const BeaconMsg& other)
 {
     this->messageOriginPosition = other.messageOriginPosition;
     this->senderDirection = other.senderDirection;
-    this->nodesIds = other.nodesIds;
-    this->senderAddress = other.senderAddress;
-    this->serial = other.serial;
+    this->Path = other.Path;
     this->hop = other.hop;
+    this->RsuID = other.RsuID;
+    this->DesID = other.DesID;
+    this->SrcID = other.SrcID;
+    this->AckMsg = other.AckMsg;
+    this->IsFlooding = other.IsFlooding;
 }
 
 void BeaconMsg::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    ::veins::BaseFrame1609_4::parsimPack(b);
+    ::BasicSafetyMessage::parsimPack(b);
     doParsimPacking(b,this->messageOriginPosition);
     doParsimPacking(b,this->senderDirection);
-    doParsimPacking(b,this->nodesIds);
-    doParsimPacking(b,this->senderAddress);
-    doParsimPacking(b,this->serial);
+    doParsimPacking(b,this->Path);
     doParsimPacking(b,this->hop);
+    doParsimPacking(b,this->RsuID);
+    doParsimPacking(b,this->DesID);
+    doParsimPacking(b,this->SrcID);
+    doParsimPacking(b,this->AckMsg);
+    doParsimPacking(b,this->IsFlooding);
 }
 
 void BeaconMsg::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    ::veins::BaseFrame1609_4::parsimUnpack(b);
+    ::BasicSafetyMessage::parsimUnpack(b);
     doParsimUnpacking(b,this->messageOriginPosition);
     doParsimUnpacking(b,this->senderDirection);
-    doParsimUnpacking(b,this->nodesIds);
-    doParsimUnpacking(b,this->senderAddress);
-    doParsimUnpacking(b,this->serial);
+    doParsimUnpacking(b,this->Path);
     doParsimUnpacking(b,this->hop);
+    doParsimUnpacking(b,this->RsuID);
+    doParsimUnpacking(b,this->DesID);
+    doParsimUnpacking(b,this->SrcID);
+    doParsimUnpacking(b,this->AckMsg);
+    doParsimUnpacking(b,this->IsFlooding);
 }
 
 Coord& BeaconMsg::getMessageOriginPosition()
@@ -257,34 +268,14 @@ void BeaconMsg::setSenderDirection(double senderDirection)
     this->senderDirection = senderDirection;
 }
 
-const char * BeaconMsg::getNodesIds() const
+const char * BeaconMsg::getPath() const
 {
-    return this->nodesIds.c_str();
+    return this->Path.c_str();
 }
 
-void BeaconMsg::setNodesIds(const char * nodesIds)
+void BeaconMsg::setPath(const char * Path)
 {
-    this->nodesIds = nodesIds;
-}
-
-LAddress::L2Type& BeaconMsg::getSenderAddress()
-{
-    return this->senderAddress;
-}
-
-void BeaconMsg::setSenderAddress(const LAddress::L2Type& senderAddress)
-{
-    this->senderAddress = senderAddress;
-}
-
-int BeaconMsg::getSerial() const
-{
-    return this->serial;
-}
-
-void BeaconMsg::setSerial(int serial)
-{
-    this->serial = serial;
+    this->Path = Path;
 }
 
 int BeaconMsg::getHop() const
@@ -295,6 +286,56 @@ int BeaconMsg::getHop() const
 void BeaconMsg::setHop(int hop)
 {
     this->hop = hop;
+}
+
+int BeaconMsg::getRsuID() const
+{
+    return this->RsuID;
+}
+
+void BeaconMsg::setRsuID(int RsuID)
+{
+    this->RsuID = RsuID;
+}
+
+int BeaconMsg::getDesID() const
+{
+    return this->DesID;
+}
+
+void BeaconMsg::setDesID(int DesID)
+{
+    this->DesID = DesID;
+}
+
+int BeaconMsg::getSrcID() const
+{
+    return this->SrcID;
+}
+
+void BeaconMsg::setSrcID(int SrcID)
+{
+    this->SrcID = SrcID;
+}
+
+bool BeaconMsg::getAckMsg() const
+{
+    return this->AckMsg;
+}
+
+void BeaconMsg::setAckMsg(bool AckMsg)
+{
+    this->AckMsg = AckMsg;
+}
+
+bool BeaconMsg::getIsFlooding() const
+{
+    return this->IsFlooding;
+}
+
+void BeaconMsg::setIsFlooding(bool IsFlooding)
+{
+    this->IsFlooding = IsFlooding;
 }
 
 class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
@@ -327,7 +368,7 @@ class BeaconMsgDescriptor : public omnetpp::cClassDescriptor
 
 Register_ClassDescriptor(BeaconMsgDescriptor)
 
-BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("veins::BeaconMsg", "veins::BaseFrame1609_4")
+BeaconMsgDescriptor::BeaconMsgDescriptor() : omnetpp::cClassDescriptor("BeaconMsg", "BasicSafetyMessage")
 {
     propertynames = nullptr;
 }
@@ -362,7 +403,7 @@ const char *BeaconMsgDescriptor::getProperty(const char *propertyname) const
 int BeaconMsgDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 6+basedesc->getFieldCount() : 6;
+    return basedesc ? 9+basedesc->getFieldCount() : 9;
 }
 
 unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
@@ -377,11 +418,14 @@ unsigned int BeaconMsgDescriptor::getFieldTypeFlags(int field) const
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
-        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconMsgDescriptor::getFieldName(int field) const
@@ -395,12 +439,15 @@ const char *BeaconMsgDescriptor::getFieldName(int field) const
     static const char *fieldNames[] = {
         "messageOriginPosition",
         "senderDirection",
-        "nodesIds",
-        "senderAddress",
-        "serial",
+        "Path",
         "hop",
+        "RsuID",
+        "DesID",
+        "SrcID",
+        "AckMsg",
+        "IsFlooding",
     };
-    return (field>=0 && field<6) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<9) ? fieldNames[field] : nullptr;
 }
 
 int BeaconMsgDescriptor::findField(const char *fieldName) const
@@ -409,10 +456,13 @@ int BeaconMsgDescriptor::findField(const char *fieldName) const
     int base = basedesc ? basedesc->getFieldCount() : 0;
     if (fieldName[0]=='m' && strcmp(fieldName, "messageOriginPosition")==0) return base+0;
     if (fieldName[0]=='s' && strcmp(fieldName, "senderDirection")==0) return base+1;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodesIds")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+3;
-    if (fieldName[0]=='s' && strcmp(fieldName, "serial")==0) return base+4;
-    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+5;
+    if (fieldName[0]=='P' && strcmp(fieldName, "Path")==0) return base+2;
+    if (fieldName[0]=='h' && strcmp(fieldName, "hop")==0) return base+3;
+    if (fieldName[0]=='R' && strcmp(fieldName, "RsuID")==0) return base+4;
+    if (fieldName[0]=='D' && strcmp(fieldName, "DesID")==0) return base+5;
+    if (fieldName[0]=='S' && strcmp(fieldName, "SrcID")==0) return base+6;
+    if (fieldName[0]=='A' && strcmp(fieldName, "AckMsg")==0) return base+7;
+    if (fieldName[0]=='I' && strcmp(fieldName, "IsFlooding")==0) return base+8;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -428,11 +478,14 @@ const char *BeaconMsgDescriptor::getFieldTypeString(int field) const
         "Coord",
         "double",
         "string",
-        "LAddress::L2Type",
         "int",
         "int",
+        "int",
+        "int",
+        "bool",
+        "bool",
     };
-    return (field>=0 && field<6) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **BeaconMsgDescriptor::getFieldPropertyNames(int field) const
@@ -501,10 +554,13 @@ std::string BeaconMsgDescriptor::getFieldValueAsString(void *object, int field, 
     switch (field) {
         case 0: {std::stringstream out; out << pp->getMessageOriginPosition(); return out.str();}
         case 1: return double2string(pp->getSenderDirection());
-        case 2: return oppstring2string(pp->getNodesIds());
-        case 3: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
-        case 4: return long2string(pp->getSerial());
-        case 5: return long2string(pp->getHop());
+        case 2: return oppstring2string(pp->getPath());
+        case 3: return long2string(pp->getHop());
+        case 4: return long2string(pp->getRsuID());
+        case 5: return long2string(pp->getDesID());
+        case 6: return long2string(pp->getSrcID());
+        case 7: return bool2string(pp->getAckMsg());
+        case 8: return bool2string(pp->getIsFlooding());
         default: return "";
     }
 }
@@ -520,9 +576,13 @@ bool BeaconMsgDescriptor::setFieldValueAsString(void *object, int field, int i, 
     BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
     switch (field) {
         case 1: pp->setSenderDirection(string2double(value)); return true;
-        case 2: pp->setNodesIds((value)); return true;
-        case 4: pp->setSerial(string2long(value)); return true;
-        case 5: pp->setHop(string2long(value)); return true;
+        case 2: pp->setPath((value)); return true;
+        case 3: pp->setHop(string2long(value)); return true;
+        case 4: pp->setRsuID(string2long(value)); return true;
+        case 5: pp->setDesID(string2long(value)); return true;
+        case 6: pp->setSrcID(string2long(value)); return true;
+        case 7: pp->setAckMsg(string2bool(value)); return true;
+        case 8: pp->setIsFlooding(string2bool(value)); return true;
         default: return false;
     }
 }
@@ -537,7 +597,6 @@ const char *BeaconMsgDescriptor::getFieldStructName(int field) const
     }
     switch (field) {
         case 0: return omnetpp::opp_typename(typeid(Coord));
-        case 3: return omnetpp::opp_typename(typeid(LAddress::L2Type));
         default: return nullptr;
     };
 }
@@ -553,10 +612,8 @@ void *BeaconMsgDescriptor::getFieldStructValuePointer(void *object, int field, i
     BeaconMsg *pp = (BeaconMsg *)object; (void)pp;
     switch (field) {
         case 0: return (void *)(&pp->getMessageOriginPosition()); break;
-        case 3: return (void *)(&pp->getSenderAddress()); break;
         default: return nullptr;
     }
 }
 
-} // namespace veins
 

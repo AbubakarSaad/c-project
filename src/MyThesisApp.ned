@@ -15,10 +15,9 @@
 
 package globcomm.src;
 
-import org.car2x.veins.modules.application.ieee80211p.DemoBaseApplLayer;
-import org.car2x.veins.modules.mobility.traci.TraCIVehicleInserter;
+import org.car2x.veins.modules.application.ieee80211p.BaseWaveApplLayer;
 
-simple MyThesisApp extends DemoBaseApplLayer
+simple MyThesisApp extends BaseWaveApplLayer
 {
     parameters:
         
@@ -40,6 +39,21 @@ simple MyThesisApp extends DemoBaseApplLayer
 //        
 //        double datarate @unit(bps);
         
-   		@class(veins::MyThesisApp);
+        // Broadcast Supression parameters
+        int numberTimeSlots = default(4);
+        double avgCommRange @unit(m) = default(500m);
+        double estimatedOneHopDelay @unit(s) = default(60ms);
+        double maxDelay @unit(s) = default(4ms);
+        
+        
+        // Sender-based Broadcast Suppression Parameters
+        double minDistance @unit(m) = default(0m);
+        double maxDistance @unit(m) = default(500m);
+        
+        double maxGPSError @unit(m) = default(0m);
+        
+//        double datarate @unit(bps);
+        
+   		@class(MyThesisApp);
     
 }

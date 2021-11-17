@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for c-project
+# OMNeT++/OMNEST Makefile for globcomm
 #
 # This file was generated with the command:
 #  opp_makemake -f --deep -O out -KVEINS_PROJ=C:/Users/abuba/src/veins-4.7.1 -I. -I$$\(VEINS_PROJ\)/src -Isrc -L$$\(VEINS_PROJ\)/src -lveins$$\(D\)
 #
 
 # Name of target to be created (-o option)
-TARGET = c-project$(D)$(EXE_SUFFIX)
+TARGET = globcomm$(D)$(EXE_SUFFIX)
 TARGET_DIR = .
 
 # User interface (uncomment one) (-u option)
@@ -30,13 +30,19 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/src/MyThesisApp.o $O/src/RSU11p.o $O/src/messages/BeaconMsg_m.o $O/src/messages/DataMsg_m.o $O/src/messages/RSUMsg_m.o
+OBJS = \
+    $O/src/MDP.o \
+    $O/src/MyThesisApp.o \
+    $O/src/RSU11p.o \
+    $O/src/messages/Ack_m.o \
+    $O/src/messages/BeaconMsg_m.o \
+    $O/src/messages/DataMsg_m.o
 
 # Message files
 MSGFILES = \
+    src/messages/Ack.msg \
     src/messages/BeaconMsg.msg \
-    src/messages/DataMsg.msg \
-    src/messages/RSUMsg.msg
+    src/messages/DataMsg.msg
 
 # SM files
 SMFILES =
